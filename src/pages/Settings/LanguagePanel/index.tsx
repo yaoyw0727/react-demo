@@ -47,7 +47,9 @@ const LanguagePanel: React.FC = () => {
           <Radio.Group className={styles.languageGroup}>
             {languages.map((lang) => (
               <Radio key={lang.key} value={lang.key} className={styles.languageOption}>
-                <IconFont type={lang.icon} className={styles.flag} />
+                <span className={styles.flagWrapper}>
+                  <IconFont type={lang.icon} className={styles.flag} />
+                </span>
                 <span className={styles.langName}>{lang.nativeLabel}</span>
               </Radio>
             ))}
