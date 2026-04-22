@@ -1,0 +1,37 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+
+  .languageGroup {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    .languageOption {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid var(--antd-colorBorder);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: var(--antd-colorPrimary);
+        background-color: var(--antd-colorPrimaryBg);
+      }
+
+      .flag {
+        width: 24px;
+        height: 18px;
+      }
+
+      .langName {
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+  }
+}

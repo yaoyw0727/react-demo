@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  min-height: 400px;
+  border-radius: var(--border-radius-base);
+  overflow: hidden;
+
+  .sidebar {
+    width: 200px;
+
+    .menu {
+      border-right: none;
+
+      .ant-menu-item {
+        margin: 4px 0;
+        border-radius: 0;
+        position: relative;
+        border-left: 3px solid transparent;
+        transition: all 0.2s;
+
+        &.ant-menu-item-selected {
+          border-left-color: var(--primary-color);
+          color: var(--primary-color);
+
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  .content {
+    flex: 1;
+    padding: 24px;
+  }
+}
