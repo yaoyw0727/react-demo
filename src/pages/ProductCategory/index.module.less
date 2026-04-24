@@ -1,5 +1,36 @@
 .container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+
   .title {
-    margin-bottom: 16px;
+    margin: 0;
+    padding: 16px 0;
+    flex-shrink: 0;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .tableContainer {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .pagination {
+    flex-shrink: 0;
+    padding-top: 16px;
+    display: flex;
+    justify-content: flex-end;
   }
 }
