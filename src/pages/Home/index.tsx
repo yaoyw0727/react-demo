@@ -6,6 +6,10 @@ import styles from './index.module.less';
 
 const { Title, Paragraph } = Typography;
 
+/**
+ * 首页组件
+ * 展示应用介绍和状态管理示例
+ */
 const Home: React.FC = () => {
   const { count, increment, decrement, reset } = useCounterStore();
 

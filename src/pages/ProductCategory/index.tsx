@@ -29,6 +29,7 @@ const columns = [
   },
 ];
 
+// 模拟分类数据
 const data = Array.from({ length: 30 }, (_, i) => ({
   key: String(i + 1),
   name: `分类 ${i + 1}`,
@@ -37,11 +38,16 @@ const data = Array.from({ length: 30 }, (_, i) => ({
   sort: i + 1,
 }));
 
+/**
+ * 产品分类页面
+ * 展示产品分类列表，支持排序
+ */
 const ProductCategory: React.FC = () => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(300);
 
+  // 动态计算表格滚动高度
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {

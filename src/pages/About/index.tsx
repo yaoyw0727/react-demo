@@ -5,6 +5,10 @@ import styles from './index.module.less';
 
 const { Title, Paragraph } = Typography;
 
+/**
+ * 关于页面组件
+ * 展示项目使用的技术栈信息
+ */
 const About: React.FC = () => {
   return (
     <div className={styles.container}>

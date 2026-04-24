@@ -33,6 +33,7 @@ type MenuItem = {
 /**
  * 生成 React Router 路由配置
  */
+// 生成 React Router 路由配置
 export const generateRouterConfig = (routes: RouteConfig[]): RouterConfigItem[] => {
   return map(routes, (route) => {
     // 如果有子路由，父路由使用 Outlet 让子路由内容显示
@@ -66,6 +67,7 @@ export const generateRouterConfig = (routes: RouteConfig[]): RouterConfigItem[] 
  * @param t - 翻译函数
  * @returns Ant Design Menu 格式的菜单项
  */
+// 生成 Ant Design Menu 菜单项
 export const generateMenuItems = (routes: RouteConfig[], t: (key: string) => string): MenuItem[] => {
   return map(filter(routes, (r) => !r.hidden), (route): MenuItem => {
     const item: MenuItem = {

@@ -48,6 +48,7 @@ const columns = [
   },
 ];
 
+// 模拟角色数据
 const data = [
   {
     key: '1',
@@ -72,11 +73,16 @@ const data = [
   },
 ];
 
+/**
+ * 角色管理页面
+ * 展示角色列表，支持权限标签显示
+ */
 const Role: React.FC = () => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(300);
 
+  // 动态计算表格滚动高度
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {

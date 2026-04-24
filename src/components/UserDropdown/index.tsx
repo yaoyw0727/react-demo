@@ -12,6 +12,10 @@ import styles from './index.module.less';
 /**
  * 用户下拉菜单组件
  */
+/**
+ * 用户下拉菜单组件
+ * 显示当前用户信息，提供设置和退出登录选项
+ */
 const UserDropdown: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();

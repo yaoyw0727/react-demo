@@ -39,6 +39,7 @@ const columns = [
   },
 ];
 
+// 模拟用户数据
 const data = Array.from({ length: 20 }, (_, i) => ({
   key: String(i + 1),
   username: `user${i + 1}`,
@@ -47,7 +48,12 @@ const data = Array.from({ length: 20 }, (_, i) => ({
   status: i % 5 === 0 ? '禁用' : '启用',
 }));
 
+/**
+ * 用户管理页面
+ * 展示用户列表，支持搜索和分页
+ */
 const User: React.FC = () => {
+  // 动态计算表格滚动高度
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(300);

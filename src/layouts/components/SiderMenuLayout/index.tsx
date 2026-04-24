@@ -1,3 +1,7 @@
+/**
+ * 侧边栏菜单布局组件
+ * 使用左侧垂直菜单栏布局，支持折叠/展开
+ */
 import React, { useState } from 'react';
 import { Layout, Menu, Breadcrumb } from 'antd';
 import { useAppearanceStore } from '../../../store/appearance';
@@ -13,12 +17,16 @@ interface SiderMenuLayoutProps {
 }
 
 const SiderMenuLayout: React.FC<SiderMenuLayoutProps> = ({ children }) => {
+  // 主题模式
   const themeMode = useAppearanceStore((state) => state.themeMode);
+  // 菜单相关状态和方法
   const { menuItems, selectedKeys, openKeys, breadcrumbItems, handleMenuClick, handleOpenChange } = useMenu();
+  // 侧边栏折叠状态
   const [collapsed, setCollapsed] = useState(false);
 
   return (
     <Layout className={styles.layout}>
+      {/* 左侧菜单栏 */}
       <Sider
         collapsible
         collapsed={collapsed}
@@ -44,6 +52,7 @@ const SiderMenuLayout: React.FC<SiderMenuLayoutProps> = ({ children }) => {
           />
         </div>
       </Sider>
+      {/* 右侧主内容区 */}
       <Layout className={styles.mainLayout}>
         <Header className={styles.sideHeader}>
           <div />

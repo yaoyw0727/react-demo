@@ -17,6 +17,10 @@ import styles from './index.module.less';
 /**
  * 外观设置面板组件
  */
+/**
+ * 外观设置面板
+ * 提供布局模式、主题模式、主题色配置
+ */
 const AppearancePanel: React.FC = () => {
   const { layoutMode, themeMode, primaryColor, setLayoutMode, setThemeMode, setPrimaryColor, resetAppearance } = useAppearanceStore();
   const [form] = Form.useForm();
@@ -25,11 +29,13 @@ const AppearancePanel: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState(primaryColor);
   const { t } = useTranslation();
 
+  // 同步表单值与 store
   useEffect(() => {
     form.setFieldsValue({ layoutMode, themeMode, primaryColor });
     resetAll(layoutMode, themeMode, primaryColor);
   }, [layoutMode, themeMode, primaryColor, form]);
 
+  // 保存设置到 store
   const handleSave = () => {
     setLayoutMode(selectedLayout);
     setThemeMode(selectedTheme);
@@ -37,11 +43,13 @@ const AppearancePanel: React.FC = () => {
     message.success(t('settings.settingsSaved'));
   };
 
+  // 取消更改，恢复初始值
   const handleCancel = () => {
     resetAll(layoutMode, themeMode, primaryColor);
     message.info(t('settings.settingsCanceled'));
   };
 
+  // 重置为默认值
   const handleReset = () => {
     resetAppearance();
     form.setFieldsValue(DEFAULT_APPEARANCE);
@@ -49,6 +57,7 @@ const AppearancePanel: React.FC = () => {
     message.success(t('settings.settingsReset'));
   };
 
+  // 重置所有选中值为默认值
   const resetAll = (
     layout: LayoutMode = DEFAULT_APPEARANCE.layoutMode, 
     theme: ThemeMode = DEFAULT_APPEARANCE.themeMode, 

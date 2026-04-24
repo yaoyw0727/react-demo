@@ -48,6 +48,7 @@ const columns = [
   },
 ];
 
+// 模拟产品数据
 const data = Array.from({ length: 50 }, (_, i) => ({
   key: String(i + 1),
   name: `产品 ${i + 1}`,
@@ -57,6 +58,10 @@ const data = Array.from({ length: 50 }, (_, i) => ({
   status: i % 5 === 0 ? '缺货' : '在售',
 }));
 
+/**
+ * 产品列表页面
+ * 展示产品列表，支持按分类和状态筛选
+ */
 const ProductList: React.FC = () => {
   const { t } = useTranslation();
   

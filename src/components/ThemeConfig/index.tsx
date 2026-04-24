@@ -14,11 +14,15 @@ import { getHoverColor, getActiveColor, getThemeLayoutColors } from './tools';
  * 主题配置组件
  * @param children - 子组件
  */
+/**
+ * 主题配置组件
+ * 使用 Ant Design ConfigProvider 管理全局主题和语言
+ */
 const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { primaryColor, themeMode = 'light' } = useAppearanceStore();
   const { language = 'zh-CN' } = useLanguageStore();
 
-  const primaryHover = getHoverColor(primaryColor);
+const primaryHover = getHoverColor(primaryColor);
   const primaryActive = getActiveColor(primaryColor);
   const primaryShadow = `${primaryColor}40`;
   const layoutColors = getThemeLayoutColors(themeMode);
