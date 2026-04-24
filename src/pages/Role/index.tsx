@@ -1,5 +1,7 @@
-import React from 'react';
-import { Typography, Table, Tag } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Table, Typography, Button, Space, Input, Tag, Pagination } from 'antd';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.less';
 
 const { Title } = Typography;
@@ -34,6 +36,16 @@ const columns = [
     dataIndex: 'status',
     key: 'status',
   },
+  {
+    title: '操作',
+    key: 'action',
+    render: () => (
+      <Space>
+        <Button type="link" size="small">编辑</Button>
+        <Button type="link" size="small" danger>删除</Button>
+      </Space>
+    ),
+  },
 ];
 
 const data = [
@@ -61,10 +73,47 @@ const data = [
 ];
 
 const Role: React.FC = () => {
+  const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(300);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setScrollY(rect.height - 60);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
+
   return (
     <div className={styles.container}>
       <Title level={3} className={styles.title}>角色管理</Title>
-      <Table columns={columns} dataSource={data} />
+      <div className={styles.toolbar}>
+        <Input
+          placeholder={t('搜索角色名称') || '搜索角色名称'}
+          prefix={<SearchOutlined />}
+          style={{ width: 240 }}
+        />
+        <Button type="primary" icon={<PlusOutlined />}>
+          {t('新增角色')}
+        </Button>
+      </div>
+      <div className={styles.tableContainer} ref={containerRef}>
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          scroll={{ y: scrollY }}
+        />
+      </div>
+      <div className={styles.pagination}>
+        <Pagination total={3} showSizeChanger={false} showQuickJumper={false} />
+      </div>
     </div>
   );
 };
