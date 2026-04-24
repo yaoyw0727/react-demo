@@ -46,3 +46,14 @@
 .ant-menu .ant-menu-sub::-webkit-scrollbar {
   display: none !important;
 }
+
+.ant-layout,
+.ant-layout * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ant-layout::-webkit-scrollbar,
+.ant-layout *::-webkit-scrollbar {
+  display: none !important;
+}

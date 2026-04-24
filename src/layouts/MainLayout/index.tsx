@@ -128,10 +128,12 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           />
           <UserDropdown />
         </Header>
-        <Content className={styles.content}>
+        <div className={styles.contentWrapper}>
           <Breadcrumb items={breadcrumbItems} className={styles.breadcrumb} />
-          {children}
-        </Content>
+          <Content className={styles.content}>
+            {children}
+          </Content>
+        </div>
         <Footer className={styles.footer}>
           {FOOTER_TEXT}
         </Footer>
@@ -172,10 +174,12 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div />
           <UserDropdown />
         </Header>
-        <Content className={styles.content}>
+        <div className={styles.contentWrapper}>
           <Breadcrumb items={breadcrumbItems} className={styles.breadcrumb} />
-          {children}
-        </Content>
+          <Content className={styles.content}>
+            {children}
+          </Content>
+        </div>
         <Footer className={styles.footer}>
           {FOOTER_TEXT}
         </Footer>
