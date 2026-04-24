@@ -1,0 +1,48 @@
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.ant-layout-sider {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ant-layout-sider::-webkit-scrollbar {
+  display: none !important;
+}
+
+.ant-layout-sider .ant-layout-sider-children {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ant-layout-sider .ant-layout-sider-children::-webkit-scrollbar {
+  display: none !important;
+}
+
+.ant-menu {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ant-menu::-webkit-scrollbar {
+  display: none !important;
+}
+
+.ant-menu .ant-menu-submenu-scroll-container,
+.ant-menu .ant-menu-sub {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ant-menu .ant-menu-submenu-scroll-container::-webkit-scrollbar,
+.ant-menu .ant-menu-sub::-webkit-scrollbar {
+  display: none !important;
+}

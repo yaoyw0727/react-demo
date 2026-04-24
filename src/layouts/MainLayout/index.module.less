@@ -1,5 +1,6 @@
 .layout {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 
   .header {
     display: flex;
@@ -20,7 +21,9 @@
   }
 
   .content {
-    padding: 24px 24px;
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
 
     .breadcrumb {
       margin-bottom: 16px;
@@ -29,20 +32,77 @@
 
   .footer {
     text-align: center;
+    flex-shrink: 0;
   }
 
   .sider {
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 
-    .siderLogo {
-      height: 64px;
+    :global(.ant-layout-sider-children) {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: inherit;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
     }
+
+    .siderContent {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      &::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+
+      .siderLogo {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: inherit;
+        flex-shrink: 0;
+      }
+
+      .siderMenu {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        :global(.ant-menu) {
+          overflow-y: auto;
+          overflow-x: hidden;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+
+          &::-webkit-scrollbar {
+            display: none !important;
+          }
+        }
+
+        &::-webkit-scrollbar {
+          display: none !important;
+        }
+      }
+    }
+  }
+
+  .mainLayout {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
   }
 
   .sideHeader {
@@ -50,6 +110,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 
     .pageTitle {
       font-size: 18px;

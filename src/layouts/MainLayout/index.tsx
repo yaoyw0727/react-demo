@@ -14,9 +14,10 @@ import { useLanguageStore } from '../../store/language';
 import i18n from '@/utils/i18n';
 import UserDropdown from '../../components/UserDropdown';
 import styles from './index.module.less';
-import { findParentPath, getBreadcrumbKeys, getPageTitleKey } from './tools';
+import { findParentPath, getBreadcrumbKeys } from './tools';
 import { generateMenuItems } from '../../routes/tools';
 import { FOOTER_TEXT, APP_NAME, APP_NAME_SHORT } from '../../constants';
+import './global.css';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -101,10 +102,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return keys;
   }, [location.pathname]);
 
-  // 页面标题翻译
-  const pageTitleKey = getPageTitleKey(location.pathname);
-  const pageTitle = t(pageTitleKey) || location.pathname;
-
   // 面包屑翻译
   const breadcrumbKeys = getBreadcrumbKeys(location.pathname);
   const breadcrumbItems = breadcrumbKeys.map((key: string, index: number) => ({
@@ -113,7 +110,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       : t(key) || key,
   }));
 
-  // 根据设置显示不同布局
+  // 顶部菜单布局
   if (layoutMode === 'top') {
     return (
       <Layout className={styles.layout}>
@@ -145,23 +142,34 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 侧边栏菜单布局
   return (
     <Layout className={styles.layout}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} className={styles.sider}>
-        <div className={styles.siderLogo}>
-          {collapsed ? APP_NAME_SHORT : APP_NAME}
+<Sider 
+        collapsible 
+        collapsed={collapsed} 
+        onCollapse={(value: boolean) => setCollapsed(value)} 
+        className={styles.sider}
+        width={200}
+        collapsedWidth={80}
+        style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
+        <div className={styles.siderContent}>
+          <div className={styles.siderLogo}>
+            {collapsed ? APP_NAME_SHORT : APP_NAME}
+          </div>
+          <Menu
+            mode="inline"
+            theme={themeMode ?? 'light'}
+            selectedKeys={selectedKeys}
+            openKeys={openKeys}
+            items={menuItems}
+            onClick={handleMenuClick}
+            onOpenChange={handleOpenChange}
+            className={styles.siderMenu}
+          />
         </div>
-        <Menu
-          mode="inline"
-          theme={themeMode ?? 'light'}
-          selectedKeys={selectedKeys}
-          openKeys={openKeys}
-          items={menuItems}
-          onClick={handleMenuClick}
-          onOpenChange={handleOpenChange}
-        />
       </Sider>
-      <Layout>
+      <Layout className={styles.mainLayout}>
         <Header className={styles.sideHeader}>
-          <div className={styles.pageTitle}>{pageTitle}</div>
+          <div />
           <UserDropdown />
         </Header>
         <Content className={styles.content}>
