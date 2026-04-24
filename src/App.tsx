@@ -19,9 +19,13 @@ const App: React.FC = () => {
       if (route.children && route.children.length > 0) {
         return (
           <Route key={route.path} path={route.path} element={route.element}>
-            {route.children.map((child) => (
-              <Route key={child.path} path={child.path} element={child.element} />
-            ))}
+            {route.children.map((child) => {
+              // 提取子路由的相对路径
+              const relativePath = child.path.replace(route.path + '/', '');
+              return (
+                <Route key={child.path} path={relativePath} element={child.element} />
+              );
+            })}
           </Route>
         );
       }

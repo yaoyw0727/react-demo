@@ -6,10 +6,8 @@ import React from 'react';
 import { HomeOutlined, InfoCircleOutlined, SettingOutlined, ShoppingOutlined } from '@ant-design/icons';
 import Home from '../pages/Home';
 import About from '../pages/About';
-import System from '../pages/System';
 import User from '../pages/User';
 import Role from '../pages/Role';
-import Product from '../pages/Product';
 import ProductList from '../pages/ProductList';
 import ProductCategory from '../pages/ProductCategory';
 import Settings from '../pages/Settings';
@@ -25,7 +23,6 @@ export const routes: RouteConfig[] = [
   { path: '/about', component: About, title: '关于', labelKey: 'menu.about', icon: React.createElement(InfoCircleOutlined) },
   {
     path: '/system',
-    component: System,
     title: '系统管理',
     labelKey: 'menu.system',
     icon: React.createElement(SettingOutlined),
@@ -36,7 +33,6 @@ export const routes: RouteConfig[] = [
   },
   {
     path: '/product',
-    component: Product,
     title: '产品管理',
     labelKey: 'menu.product',
     icon: React.createElement(ShoppingOutlined),

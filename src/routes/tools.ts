@@ -1,4 +1,5 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import { map, filter, replace } from "lodash";
 
 /**
@@ -6,7 +7,7 @@ import { map, filter, replace } from "lodash";
  */
 export interface RouteConfig {
   path: string;
-  component: React.ComponentType;
+  component?: React.ComponentType;
   title: string;
   labelKey: string;
   icon?: React.ReactNode;
@@ -34,15 +35,24 @@ type MenuItem = {
  */
 export const generateRouterConfig = (routes: RouteConfig[]): RouterConfigItem[] => {
   return map(routes, (route) => {
+    // 如果有子路由，父路由使用 Outlet 让子路由内容显示
+    const element = route.children 
+      ? React.createElement(Outlet)
+      : route.component 
+        ? React.createElement(route.component)
+        : React.createElement(React.Fragment);
+
     const config: RouterConfigItem = {
       path: route.path,
-      element: React.createElement(route.component),
+      element,
     };
 
     if (route.children) {
       config.children = map(route.children, (child) => ({
         path: child.path,
-        element: React.createElement(child.component),
+        element: child.component 
+          ? React.createElement(child.component)
+          : React.createElement(React.Fragment),
       }));
     }
 
