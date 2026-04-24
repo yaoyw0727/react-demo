@@ -1,11 +1,11 @@
 /**
  * 语言设置面板
  */
-import React, { useEffect } from 'react';
-import { Radio, Form, message } from 'antd';
+import React, { useState } from 'react';
+import { Form, Card, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useLanguageStore, languages } from '../../../store/language';
-import IconFont from '../../../components/IconFont';
+import type { Language } from '../../../store/language';
 import ActionsBar from '../components/ActionsBar';
 import styles from './index.module.less';
 import i18n from '../../../i18n';
@@ -16,44 +16,52 @@ import i18n from '../../../i18n';
 const LanguagePanel: React.FC = () => {
   const { language, setLanguage, resetLanguage } = useLanguageStore();
   const [form] = Form.useForm();
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    form.setFieldsValue({ language });
-  }, [language, form]);
+  const { t, i18n: i18nInstance } = useTranslation();
+  const [selectedLang, setSelectedLang] = useState<Language>(language);
+  const isEnglish = i18nInstance.language.startsWith('en');
 
   const handleSave = () => {
-    const values = form.getFieldsValue();
-    setLanguage(values.language);
-    i18n.changeLanguage(values.language);
+    setLanguage(selectedLang);
+    i18n.changeLanguage(selectedLang);
     message.success(t('settings.settingsSaved'));
   };
 
   const handleCancel = () => {
-    form.setFieldsValue({ language });
+    setSelectedLang(language);
     message.info(t('settings.settingsCanceled'));
   };
 
   const handleReset = () => {
     resetLanguage();
-    form.setFieldsValue({ language: 'zh-CN' });
+    setSelectedLang('zh-CN');
     message.success(t('settings.settingsReset'));
+  };
+
+  const handleSelect = (lang: Language) => {
+    setSelectedLang(lang);
   };
 
   return (
     <div className={styles.panel}>
-      <Form form={form} layout="vertical" initialValues={{ language }}>
-        <Form.Item label={t('settings.systemLanguage')} name="language">
-          <Radio.Group className={styles.languageGroup}>
+      <Form form={form} layout="vertical">
+        <Form.Item label={t('settings.systemLanguage')}>
+          <div className={styles.languageGroup}>
             {languages.map((lang) => (
-              <Radio key={lang.key} value={lang.key} className={styles.languageOption}>
-                <span className={styles.flagWrapper}>
-                  <IconFont type={lang.icon} className={styles.flag} />
-                </span>
-                <span className={styles.langName}>{lang.nativeLabel}</span>
-              </Radio>
+              <div
+                key={lang.key}
+                className={`${styles.languageOption} ${selectedLang === lang.key ? styles.active : ''}`}
+                onClick={() => handleSelect(lang.key)}
+              >
+                <Card
+                  className={styles.card}
+                  hoverable
+                >
+                  <img src={lang.image} alt={lang.nativeLabel} className={styles.flag} />
+                </Card>
+                <span className={styles.langName}>{isEnglish ? lang.labelEn : lang.label}</span>
+              </div>
             ))}
-          </Radio.Group>
+          </div>
         </Form.Item>
       </Form>
 

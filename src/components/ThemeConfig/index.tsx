@@ -20,6 +20,7 @@ const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const primaryHover = getHoverColor(primaryColor);
   const primaryActive = getActiveColor(primaryColor);
+  const primaryShadow = `${primaryColor}40`;
   const layoutColors = getThemeLayoutColors(themeMode);
 
   // 根据语言获取对应的 locale
@@ -48,6 +49,7 @@ const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             '--primary-color': primaryColor,
             '--primary-hover': primaryHover,
             '--primary-active': primaryActive,
+            '--primary-shadow': primaryShadow,
           } as React.CSSProperties}
         >
           {children}

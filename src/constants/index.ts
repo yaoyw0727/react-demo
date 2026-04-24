@@ -18,12 +18,12 @@ export const DEFAULT_PAGE_TITLE = '首页';
  * 主题色配置
  */
 export const THEME_COLORS = [
-  { key: 'blue', value: '#1890ff', label: '拂晓蓝' },
-  { key: 'green', value: '#52c41a', label: '极光绿' },
-  { key: 'purple', value: '#722ed1', label: '酱紫' },
-  { key: 'red', value: '#f5222d', label: '薄暮' },
-  { key: 'orange', value: '#fa8c16', label: '日暮' },
-  { key: 'cyan', value: '#13c2c2', label: '明青' },
+  { key: 'blue', value: '#1890ff', label: '拂晓蓝', labelEn: 'Dawn Blue' },
+  { key: 'green', value: '#52c41a', label: '极光绿', labelEn: 'Aurora Green' },
+  { key: 'purple', value: '#722ed1', label: '酱紫', labelEn: 'Violet' },
+  { key: 'red', value: '#f5222d', label: '薄暮', labelEn: 'Sunset' },
+  { key: 'orange', value: '#fa8c16', label: '日暮', labelEn: 'Dusk' },
+  { key: 'cyan', value: '#13c2c2', label: '明青', labelEn: 'Cyan' },
 ];
 
 /**

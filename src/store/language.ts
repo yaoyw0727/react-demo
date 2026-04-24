@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import flagCn from '@/assets/images/flag_zh-CN.svg';
+import flagEn from '@/assets/images/flag_en-US.svg';
 
 /**
  * 语言类型
@@ -9,9 +11,9 @@ export type Language = 'zh-CN' | 'en-US';
 /**
  * 可选语言列表
  */
-export const languages: { key: Language; icon: string; label: string; nativeLabel: string }[] = [
-  { key: 'zh-CN', icon: 'icon-cn', label: 'Chinese', nativeLabel: '中文' },
-  { key: 'en-US', icon: 'icon-us', label: 'English', nativeLabel: 'English' },
+export const languages: { key: Language; image: string; label: string; labelEn: string; nativeLabel: string }[] = [
+  { key: 'zh-CN', image: flagCn, label: '中文', labelEn: 'Chinese', nativeLabel: '中文' },
+  { key: 'en-US', image: flagEn, label: '英文', labelEn: 'English', nativeLabel: '英文' },
 ];
 
 /**

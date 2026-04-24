@@ -50,3 +50,17 @@ export const getThemeLayoutColors = (themeMode: 'light' | 'dark') => {
 
   return layoutColor
 };
+
+/**
+ * 将 hex 颜色转换为 rgba
+ * @param color - 十六进制颜色值
+ * @param alpha - 透明度 0-100
+ * @returns rgba 颜色字符串
+ */
+export const hexToRgba = (color: string, alpha: number): string => {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha / 100})`;
+};
