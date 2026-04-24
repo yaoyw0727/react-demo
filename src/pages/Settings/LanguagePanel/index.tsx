@@ -8,7 +8,7 @@ import { useLanguageStore, languages } from '../../../store/language';
 import type { Language } from '../../../store/language';
 import ActionsBar from '../components/ActionsBar';
 import styles from './index.module.less';
-import i18n from '../../../i18n';
+import i18n from '@/utils/i18n';
 
 /**
  * 语言设置面板组件

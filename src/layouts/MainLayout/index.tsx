@@ -11,7 +11,7 @@ import { find, some, replace } from 'lodash';
 import { routes } from '../../routes';
 import { useAppearanceStore } from '../../store/appearance';
 import { useLanguageStore } from '../../store/language';
-import i18n from '../../i18n';
+import i18n from '@/utils/i18n';
 import UserDropdown from '../../components/UserDropdown';
 import styles from './index.module.less';
 import { findParentPath, getBreadcrumbKeys, getPageTitleKey } from './tools';

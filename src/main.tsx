@@ -6,7 +6,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import ThemeConfig from './components/ThemeConfig';
-import './i18n';
+import './utils/i18n';
 import './assets/styles/global.less';
 import './assets/styles/antd-override.less';
 
