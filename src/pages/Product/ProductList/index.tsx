@@ -41,7 +41,7 @@ const columns = [
     key: 'action',
     render: () => (
       <Space>
-        <Button type="link" size="small">编辑</Button>
+        <Button color="primary" variant="link" size="small">编辑</Button>
         <Button type="link" size="small" danger>删除</Button>
       </Space>
     ),

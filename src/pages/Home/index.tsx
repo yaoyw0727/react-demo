@@ -32,7 +32,7 @@ const Home: React.FC = () => {
         <Title level={4}>路由示例</Title>
         <Space>
           <Link to="/about">
-            <Button type="link">前往关于页面</Button>
+            <Button color="primary" variant="link">前往关于页面</Button>
           </Link>
         </Space>
       </div>

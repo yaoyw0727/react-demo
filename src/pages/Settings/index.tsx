@@ -20,8 +20,8 @@ const Settings: React.FC = () => {
   const { t } = useTranslation();
 
   const settingMenus = [
-    { key: 'appearance', icon: React.createElement(SkinOutlined), label: t('settings.appearance') },
-    { key: 'language', icon: React.createElement(GlobalOutlined), label: t('settings.language') },
+    { key: 'appearance', icon: <SkinOutlined />, label: t('settings.appearance') },
+    { key: 'language', icon: <GlobalOutlined />, label: t('settings.language') },
   ];
 
   const renderPanel = () => {

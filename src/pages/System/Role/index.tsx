@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Typography, Button, Space, Input, Pagination } from 'antd';
+import { Table, Typography, Button, Space, Input, Tag, Pagination } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import styles from './index.module.less';
@@ -8,19 +8,28 @@ const { Title } = Typography;
 
 const columns = [
   {
-    title: '用户名',
-    dataIndex: 'username',
-    key: 'username',
+    title: '角色名称',
+    dataIndex: 'name',
+    key: 'name',
   },
   {
-    title: '邮箱',
-    dataIndex: 'email',
-    key: 'email',
+    title: '描述',
+    dataIndex: 'description',
+    key: 'description',
   },
   {
-    title: '角色',
-    dataIndex: 'role',
-    key: 'role',
+    title: '权限',
+    dataIndex: 'permissions',
+    key: 'permissions',
+    render: (permissions: string[]) => (
+      <>
+        {permissions.map((permission) => (
+          <Tag color="blue" key={permission}>
+            {permission}
+          </Tag>
+        ))}
+      </>
+    ),
   },
   {
     title: '状态',
@@ -32,32 +41,48 @@ const columns = [
     key: 'action',
     render: () => (
       <Space>
-        <Button type="link" size="small">编辑</Button>
+        <Button color="primary" variant="link" size="small">编辑</Button>
         <Button type="link" size="small" danger>删除</Button>
       </Space>
     ),
   },
 ];
 
-// 模拟用户数据
-const data = Array.from({ length: 20 }, (_, i) => ({
-  key: String(i + 1),
-  username: `user${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  role: i === 0 ? '管理员' : '普通用户',
-  status: i % 5 === 0 ? '禁用' : '启用',
-}));
+// 模拟角色数据
+const data = [
+  {
+    key: '1',
+    name: '管理员',
+    description: '系统管理员，拥有所有权限',
+    permissions: ['用户管理', '角色管理', '系统设置'],
+    status: '启用',
+  },
+  {
+    key: '2',
+    name: '普通用户',
+    description: '普通用户，拥有基本权限',
+    permissions: ['查看'],
+    status: '启用',
+  },
+  {
+    key: '3',
+    name: '访客',
+    description: '访客用户，只有查看权限',
+    permissions: ['查看'],
+    status: '禁用',
+  },
+];
 
 /**
- * 用户管理页面
- * 展示用户列表，支持搜索和分页
+ * 角色管理页面
+ * 展示角色列表，支持权限标签显示
  */
-const User: React.FC = () => {
-  // 动态计算表格滚动高度
+const Role: React.FC = () => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(300);
 
+  // 动态计算表格滚动高度
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {
@@ -73,15 +98,15 @@ const User: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>用户管理</Title>
+      <Title level={3} className={styles.title}>角色管理</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('搜索用户名') || '搜索用户名'}
+          placeholder={t('搜索角色名称') || '搜索角色名称'}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('新增用户')}
+          {t('新增角色')}
         </Button>
       </div>
       <div className={styles.tableContainer} ref={containerRef}>
@@ -93,10 +118,10 @@ const User: React.FC = () => {
         />
       </div>
       <div className={styles.pagination}>
-        <Pagination total={20} showSizeChanger={false} showQuickJumper={false} />
+        <Pagination total={3} showSizeChanger={false} showQuickJumper={false} />
       </div>
     </div>
   );
 };
 
-export default User;
+export default Role;

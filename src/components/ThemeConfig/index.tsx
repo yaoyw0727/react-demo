@@ -22,7 +22,7 @@ const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { primaryColor, themeMode = 'light' } = useAppearanceStore();
   const { language = 'zh-CN' } = useLanguageStore();
 
-const primaryHover = getHoverColor(primaryColor);
+  const primaryHover = getHoverColor(primaryColor);
   const primaryActive = getActiveColor(primaryColor);
   const primaryShadow = `${primaryColor}40`;
   const layoutColors = getThemeLayoutColors(themeMode);

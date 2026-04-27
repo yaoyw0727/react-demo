@@ -22,13 +22,13 @@ const UserDropdown: React.FC = () => {
 
   const menuItems = [{
     key: '/settings',
-    icon: React.createElement(SettingOutlined),
+    icon: <SettingOutlined />,
     label: t('menu.settings'),
   }, {
     type: 'divider' as const,
   }, {
     key: 'logout',
-    icon: React.createElement(LogoutOutlined),
+    icon: <LogoutOutlined />,
     label: t('common.logout'),
   }];
 
