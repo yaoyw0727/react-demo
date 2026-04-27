@@ -19,6 +19,10 @@ Object.values(enUsModules).forEach((mod: any) => {
   }
 });
 
+if (import.meta.env.DEV) {
+  (window as any).i18n = i18n;
+}
+
 i18n.use(initReactI18next).init({
   resources: {
     'zh-CN': { translation: zhCnData },
