@@ -1,0 +1,20 @@
+{
+  "user.username": "用户名",
+  "user.password": "密码",
+  "user.email": "邮箱",
+  "user.phone": "手机",
+  "user.role": "角色",
+  "user.status": "状态",
+  "user.createdAt": "创建时间",
+  "user.updatedAt": "更新时间",
+  "user.action": "操作",
+  "user.addUser": "新增用户",
+  "user.editUser": "编辑用户",
+  "user.deleteUser": "删除用户",
+  "user.confirmDelete": "确定要删除该用户吗？",
+  "user.title": "用户管理",
+  "user.searchPlaceholder": "搜索用户名",
+  "user.normalUser": "普通用户",
+  "user.statusEnabled": "启用",
+  "user.statusDisabled": "禁用"
+}

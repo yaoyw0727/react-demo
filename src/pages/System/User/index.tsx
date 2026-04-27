@@ -6,47 +6,7 @@ import styles from './index.module.less';
 
 const { Title } = Typography;
 
-const columns = [
-  {
-    title: '用户名',
-    dataIndex: 'username',
-    key: 'username',
-  },
-  {
-    title: '邮箱',
-    dataIndex: 'email',
-    key: 'email',
-  },
-  {
-    title: '角色',
-    dataIndex: 'role',
-    key: 'role',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: () => (
-      <Space>
-        <Button color="primary" variant="link" size="small">编辑</Button>
-        <Button type="link" size="small" danger>删除</Button>
-      </Space>
-    ),
-  },
-];
-
-// 模拟用户数据
-const data = Array.from({ length: 20 }, (_, i) => ({
-  key: String(i + 1),
-  username: `user${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  role: i === 0 ? '管理员' : '普通用户',
-  status: i % 5 === 0 ? '禁用' : '启用',
-}));
+// 模拟用户数据 - 在组件内部定义以访问t函数
 
 /**
  * 用户管理页面
@@ -71,17 +31,59 @@ const User: React.FC = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
+  const columns = [
+    {
+      title: t('user.username'),
+      dataIndex: 'username',
+      key: 'username',
+    },
+    {
+      title: t('user.email'),
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: t('user.role'),
+      dataIndex: 'role',
+      key: 'role',
+    },
+    {
+      title: t('user.status'),
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: t('user.action'),
+      key: 'action',
+      render: () => (
+        <Space>
+          <Button color="primary" variant="link" size="small">{t('common.edit')}</Button>
+          <Button type="link" size="small" danger>{t('common.delete')}</Button>
+        </Space>
+      ),
+    },
+  ];
+
+  // 模拟用户数据
+  const data = Array.from({ length: 20 }, (_, i) => ({
+    key: String(i + 1),
+    username: `user${i + 1}`,
+    email: `user${i + 1}@example.com`,
+    role: i === 0 ? t('common.admin') : t('user.normalUser'),
+    status: i % 5 === 0 ? t('user.statusDisabled') : t('user.statusEnabled'),
+  }));
+
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>用户管理</Title>
+      <Title level={3} className={styles.title}>{t('user.title')}</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('搜索用户名') || '搜索用户名'}
+          placeholder={t('user.searchPlaceholder')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('新增用户')}
+          {t('user.addUser')}
         </Button>
       </div>
       <div className={styles.tableContainer} ref={containerRef}>

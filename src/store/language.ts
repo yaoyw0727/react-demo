@@ -6,14 +6,14 @@ import flagEn from '@/assets/images/flag_en-US.svg';
 /**
  * 语言类型
  */
-export type Language = 'zh-CN' | 'en-US';
+export type Language = 'zh-cn' | 'en-us';
 
 /**
  * 可选语言列表
  */
 export const languages: { key: Language; image: string; label: string; labelEn: string; nativeLabel: string }[] = [
-  { key: 'zh-CN', image: flagCn, label: '中文', labelEn: 'Chinese', nativeLabel: '中文' },
-  { key: 'en-US', image: flagEn, label: '英文', labelEn: 'English', nativeLabel: '英文' },
+  { key: 'zh-cn', image: flagCn, label: '中文', labelEn: 'Chinese', nativeLabel: '中文' },
+  { key: 'en-us', image: flagEn, label: '英文', labelEn: 'English', nativeLabel: '英文' },
 ];
 
 /**
@@ -29,7 +29,7 @@ interface LanguageState {
  * 默认语言设置
  */
 const defaultValues = {
-  language: 'zh-CN' as Language,
+  language: 'zh-cn' as Language,
 };
 
 /**

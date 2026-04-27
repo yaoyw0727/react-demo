@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.less';
 
 interface ActionsBarProps {
@@ -8,17 +9,19 @@ interface ActionsBarProps {
 }
 
 const ActionsBar: React.FC<ActionsBarProps> = ({ onReset, onCancel, onSave }) => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.actions}>
       <button className={`${styles.actionBtn} ${styles.resetBtn}`} onClick={onReset}>
-        恢复默认
+        {t('common.reset')}
       </button>
       <div className={styles.actionGroup}>
         <button className={styles.actionBtn} onClick={onCancel}>
-          取消
+          {t('common.cancel')}
         </button>
         <button className={`${styles.actionBtn} ${styles.primary}`} onClick={onSave}>
-          保存
+          {t('common.save')}
         </button>
       </div>
     </div>

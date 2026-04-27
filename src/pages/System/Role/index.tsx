@@ -6,72 +6,7 @@ import styles from './index.module.less';
 
 const { Title } = Typography;
 
-const columns = [
-  {
-    title: '角色名称',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '描述',
-    dataIndex: 'description',
-    key: 'description',
-  },
-  {
-    title: '权限',
-    dataIndex: 'permissions',
-    key: 'permissions',
-    render: (permissions: string[]) => (
-      <>
-        {permissions.map((permission) => (
-          <Tag color="blue" key={permission}>
-            {permission}
-          </Tag>
-        ))}
-      </>
-    ),
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: () => (
-      <Space>
-        <Button color="primary" variant="link" size="small">编辑</Button>
-        <Button type="link" size="small" danger>删除</Button>
-      </Space>
-    ),
-  },
-];
-
-// 模拟角色数据
-const data = [
-  {
-    key: '1',
-    name: '管理员',
-    description: '系统管理员，拥有所有权限',
-    permissions: ['用户管理', '角色管理', '系统设置'],
-    status: '启用',
-  },
-  {
-    key: '2',
-    name: '普通用户',
-    description: '普通用户，拥有基本权限',
-    permissions: ['查看'],
-    status: '启用',
-  },
-  {
-    key: '3',
-    name: '访客',
-    description: '访客用户，只有查看权限',
-    permissions: ['查看'],
-    status: '禁用',
-  },
-];
+// 模拟角色数据 - 在组件内部定义以访问t函数
 
 /**
  * 角色管理页面
@@ -96,17 +31,84 @@ const Role: React.FC = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
+  const columns = [
+    {
+      title: t('role.name'),
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: t('role.description'),
+      dataIndex: 'description',
+      key: 'description',
+    },
+    {
+      title: t('role.permissions'),
+      dataIndex: 'permissions',
+      key: 'permissions',
+      render: (permissions: string[]) => (
+        <>
+          {permissions.map((permission) => (
+            <Tag color="blue" key={permission}>
+              {permission}
+            </Tag>
+          ))}
+        </>
+      ),
+    },
+    {
+      title: t('role.status'),
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: t('role.action'),
+      key: 'action',
+      render: () => (
+        <Space>
+          <Button color="primary" variant="link" size="small">{t('common.edit')}</Button>
+          <Button type="link" size="small" danger>{t('common.delete')}</Button>
+        </Space>
+      ),
+    },
+  ];
+
+  // 模拟角色数据
+  const data = [
+    {
+      key: '1',
+      name: t('common.admin'),
+      description: t('role.adminDescription'),
+      permissions: [t('menu.systemUser'), t('menu.systemRole'), t('settings.title')],
+      status: t('role.statusEnabled'),
+    },
+    {
+      key: '2',
+      name: t('user.normalUser'),
+      description: t('role.normalUserDescription'),
+      permissions: [t('role.permissionView')],
+      status: t('role.statusEnabled'),
+    },
+    {
+      key: '3',
+      name: t('role.guest'),
+      description: t('role.guestDescription'),
+      permissions: [t('role.permissionView')],
+      status: t('role.statusDisabled'),
+    },
+  ];
+
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>角色管理</Title>
+      <Title level={3} className={styles.title}>{t('role.title')}</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('搜索角色名称') || '搜索角色名称'}
+          placeholder={t('role.searchPlaceholder')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('新增角色')}
+          {t('role.addRole')}
         </Button>
       </div>
       <div className={styles.tableContainer} ref={containerRef}>

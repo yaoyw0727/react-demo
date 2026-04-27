@@ -1,0 +1,7 @@
+{
+  "home.welcome": "Welcome to React + Vite + Ant Design + React Router + Zustand template",
+  "home.stateExample": "Zustand State Management Example",
+  "home.currentCount": "Current Count",
+  "home.routeExample": "Route Example",
+  "home.goToAbout": "Go to About Page"
+}

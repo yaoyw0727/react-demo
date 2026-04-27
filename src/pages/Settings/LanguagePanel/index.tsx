@@ -40,7 +40,7 @@ const LanguagePanel: React.FC = () => {
   // 重置为默认语言
   const handleReset = () => {
     resetLanguage();
-    setSelectedLang('zh-CN');
+    setSelectedLang('zh-cn');
     message.success(t('settings.settingsReset'));
   };
 

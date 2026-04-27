@@ -1,6 +1,7 @@
 import React from 'react';
 import { Typography, Button, Space } from 'antd';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import styles from './index.module.less';
 
 const { Title, Paragraph } = Typography;
@@ -10,23 +11,25 @@ const { Title, Paragraph } = Typography;
  * 展示项目使用的技术栈信息
  */
 const About: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.container}>
-      <Title level={2} className={styles.title}>关于页面</Title>
+      <Title level={2} className={styles.title}>{t('menu.about')}</Title>
       <div className={styles.content}>
-        <Paragraph>这是一个使用以下技术栈构建的示例项目：</Paragraph>
+        <Paragraph>{t('about.description')}</Paragraph>
         <ul className={styles.list}>
-          <li>React 18</li>
-          <li>Vite 8</li>
-          <li>TypeScript</li>
-          <li>Ant Design 6</li>
-          <li>React Router 7</li>
-          <li>Zustand 状态管理</li>
+          <li>{t('about.techStack.react')}</li>
+          <li>{t('about.techStack.vite')}</li>
+          <li>{t('about.techStack.typescript')}</li>
+          <li>{t('about.techStack.antd')}</li>
+          <li>{t('about.techStack.router')}</li>
+          <li>{t('about.techStack.zustand')}</li>
         </ul>
         
         <Space className={styles.buttonGroup}>
           <Link to="/">
-            <Button type="primary">返回首页</Button>
+            <Button type="primary">{t('common.backToHome')}</Button>
           </Link>
         </Space>
       </div>

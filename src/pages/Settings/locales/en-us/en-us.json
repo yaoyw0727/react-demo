@@ -1,0 +1,16 @@
+{
+  "settings.title": "Settings",
+  "settings.appearance": "Appearance",
+  "settings.language": "Language",
+  "settings.layoutMode": "Layout Mode",
+  "settings.topMenu": "Top Menu",
+  "settings.sideMenu": "Side Menu",
+  "settings.themeMode": "Theme Mode",
+  "settings.light": "Light",
+  "settings.dark": "Dark",
+  "settings.themeColor": "Theme Color",
+  "settings.systemLanguage": "System Language",
+  "settings.settingsSaved": "Settings saved",
+  "settings.settingsCanceled": "Cancelled",
+  "settings.settingsReset": "Reset to default"
+}

@@ -1,0 +1,9 @@
+{
+  "about.description": "这是一个使用以下技术栈构建的示例项目：",
+  "about.techStack.react": "React 18",
+  "about.techStack.vite": "Vite 8",
+  "about.techStack.typescript": "TypeScript",
+  "about.techStack.antd": "Ant Design 6",
+  "about.techStack.router": "React Router 7",
+  "about.techStack.zustand": "Zustand 状态管理"
+}

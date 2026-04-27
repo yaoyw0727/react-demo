@@ -6,57 +6,7 @@ import styles from './index.module.less';
 
 const { Title } = Typography;
 
-const columns = [
-  {
-    title: '产品名称',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '分类',
-    dataIndex: 'category',
-    key: 'category',
-  },
-  {
-    title: '价格',
-    dataIndex: 'price',
-    key: 'price',
-    render: (price: number) => `¥${price.toFixed(2)}`,
-  },
-  {
-    title: '库存',
-    dataIndex: 'stock',
-    key: 'stock',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status: string) => (
-      <Tag color={status === '在售' ? 'green' : 'red'}>{status}</Tag>
-    ),
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: () => (
-      <Space>
-        <Button color="primary" variant="link" size="small">编辑</Button>
-        <Button type="link" size="small" danger>删除</Button>
-      </Space>
-    ),
-  },
-];
-
-// 模拟产品数据
-const data = Array.from({ length: 50 }, (_, i) => ({
-  key: String(i + 1),
-  name: `产品 ${i + 1}`,
-  category: ['手机', '电脑', '平板', '配件'][i % 4],
-  price: (i + 1) * 100,
-  stock: Math.floor(Math.random() * 200),
-  status: i % 5 === 0 ? '缺货' : '在售',
-}));
+// 模拟产品数据 - 在组件内部定义以访问t函数
 
 /**
  * 产品列表页面
@@ -65,36 +15,89 @@ const data = Array.from({ length: 50 }, (_, i) => ({
 const ProductList: React.FC = () => {
   const { t } = useTranslation();
   
+  const columns = [
+    {
+      title: t('product.name'),
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: t('product.category'),
+      dataIndex: 'category',
+      key: 'category',
+    },
+    {
+      title: t('product.price'),
+      dataIndex: 'price',
+      key: 'price',
+      render: (price: number) => `¥${price.toFixed(2)}`,
+    },
+    {
+      title: t('product.stock'),
+      dataIndex: 'stock',
+      key: 'stock',
+    },
+    {
+      title: t('product.status'),
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        const onSaleText = t('product.statusOnSale');
+        return <Tag color={status === onSaleText ? 'green' : 'red'}>{status}</Tag>;
+      },
+    },
+    {
+      title: t('product.action'),
+      key: 'action',
+      render: () => (
+        <Space>
+          <Button color="primary" variant="link" size="small">{t('common.edit')}</Button>
+          <Button type="link" size="small" danger>{t('common.delete')}</Button>
+        </Space>
+      ),
+    },
+  ];
+
+  // 模拟产品数据
+  const data = Array.from({ length: 50 }, (_, i) => ({
+    key: String(i + 1),
+    name: `${t('product.product')} ${i + 1}`,
+    category: [t('product.categoryPhone'), t('product.categoryComputer'), t('product.categoryTablet'), t('product.categoryAccessory')][i % 4],
+    price: (i + 1) * 100,
+    stock: Math.floor(Math.random() * 200),
+    status: i % 5 === 0 ? t('product.statusOutOfStock') : t('product.statusOnSale'),
+  }));
+
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>产品列表</Title>
+      <Title level={3} className={styles.title}>{t('product.listTitle')}</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('搜索产品名称') || '搜索产品名称'}
+          placeholder={t('product.searchPlaceholder')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Select
-          placeholder={t('选择分类') || '选择分类'}
+          placeholder={t('product.selectCategory')}
           style={{ width: 120 }}
           options={[
-            { value: 'all', label: t('全部') || '全部' },
-            { value: 'phone', label: t('手机') || '手机' },
-            { value: 'computer', label: t('电脑') || '电脑' },
-            { value: 'tablet', label: t('平板') || '平板' },
+            { value: 'all', label: t('product.allCategories') },
+            { value: 'phone', label: t('product.categoryPhone') },
+            { value: 'computer', label: t('product.categoryComputer') },
+            { value: 'tablet', label: t('product.categoryTablet') },
           ]}
         />
         <Select
-          placeholder={t('选择状态') || '选择状态'}
+          placeholder={t('product.selectStatus')}
           style={{ width: 120 }}
           options={[
-            { value: 'all', label: t('全部') || '全部' },
-            { value: 'onsale', label: t('在售') || '在售' },
-            { value: 'soldout', label: t('缺货') || '缺货' },
+            { value: 'all', label: t('product.allStatus') },
+            { value: 'onsale', label: t('product.statusOnSale') },
+            { value: 'soldout', label: t('product.statusOutOfStock') },
           ]}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('新增产品')}
+          {t('product.addProduct')}
         </Button>
       </div>
       <div className={styles.tableWrapper}>

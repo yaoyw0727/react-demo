@@ -1,0 +1,11 @@
+{
+  "product.categoryName": "分类名称",
+  "product.categoryDescription": "分类描述",
+  "product.productCount": "产品数量",
+  "product.sort": "排序",
+  "product.product": "产品",
+  "product.categoryDescriptionPrefix": "分类",
+  "product.categoryTitle": "产品分类",
+  "product.categorySearchPlaceholder": "搜索分类",
+  "product.addCategory": "新增分类"
+}

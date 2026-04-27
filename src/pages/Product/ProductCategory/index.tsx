@@ -6,37 +6,7 @@ import styles from './index.module.less';
 
 const { Title } = Typography;
 
-const columns = [
-  {
-    title: '分类名称',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '描述',
-    dataIndex: 'description',
-    key: 'description',
-  },
-  {
-    title: '产品数量',
-    dataIndex: 'productCount',
-    key: 'productCount',
-  },
-  {
-    title: '排序',
-    dataIndex: 'sort',
-    key: 'sort',
-  },
-];
-
-// 模拟分类数据
-const data = Array.from({ length: 30 }, (_, i) => ({
-  key: String(i + 1),
-  name: `分类 ${i + 1}`,
-  description: `这是分类 ${i + 1} 的描述`,
-  productCount: Math.floor(Math.random() * 100),
-  sort: i + 1,
-}));
+// 模拟分类数据 - 在组件内部定义以访问t函数
 
 /**
  * 产品分类页面
@@ -61,17 +31,49 @@ const ProductCategory: React.FC = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
   
+  const columns = [
+    {
+      title: t('product.categoryName'),
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: t('product.categoryDescription'),
+      dataIndex: 'description',
+      key: 'description',
+    },
+    {
+      title: t('product.productCount'),
+      dataIndex: 'productCount',
+      key: 'productCount',
+    },
+    {
+      title: t('product.sort'),
+      dataIndex: 'sort',
+      key: 'sort',
+    },
+  ];
+
+  // 模拟分类数据
+  const data = Array.from({ length: 30 }, (_, i) => ({
+    key: String(i + 1),
+    name: `${t('product.product')} ${i + 1}`,
+    description: `${t('product.categoryDescriptionPrefix')} ${i + 1}`,
+    productCount: Math.floor(Math.random() * 100),
+    sort: i + 1,
+  }));
+
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>产品分类</Title>
+      <Title level={3} className={styles.title}>{t('product.categoryTitle')}</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('搜索分类名称') || '搜索分类名称'}
+          placeholder={t('product.categorySearchPlaceholder')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('新增分类')}
+          {t('product.addCategory')}
         </Button>
       </div>
       <div className={styles.tableContainer} ref={containerRef}>

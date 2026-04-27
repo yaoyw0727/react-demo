@@ -1,0 +1,16 @@
+{
+  "settings.title": "设置",
+  "settings.appearance": "外观",
+  "settings.language": "语言",
+  "settings.layoutMode": "布局模式",
+  "settings.topMenu": "顶部菜单",
+  "settings.sideMenu": "侧边栏菜单",
+  "settings.themeMode": "主题模式",
+  "settings.light": "浅色",
+  "settings.dark": "深色",
+  "settings.themeColor": "主题色",
+  "settings.systemLanguage": "系统语言",
+  "settings.settingsSaved": "设置已保存",
+  "settings.settingsCanceled": "已取消",
+  "settings.settingsReset": "已恢复默认设置"
+}

@@ -104,7 +104,7 @@ export const useMenu = (): MenuHookResult => {
   const breadcrumbKeys = getBreadcrumbKeys(location.pathname);
   const breadcrumbItems = breadcrumbKeys.map((key: string, index: number) => ({
     title: index === 0
-      ? <Link to="/">{t(key) || '首页'}</Link>
+      ? <Link to="/">{t(key) || t('menu.home')}</Link>
       : t(key) || key,
   }));
 

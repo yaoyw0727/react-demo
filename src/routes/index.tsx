@@ -8,7 +8,7 @@ import About from '@/pages/About';
 import User from '@/pages/System/User';
 import Role from '@/pages/System/Role';
 import ProductList from '@/pages/Product/ProductList';
-import ProductCategory from '@/pages/Product/ProductCategory';
+import ProductCategory from '../pages/Product/ProductCategory';
 import Settings from '../pages/Settings';
 import type { RouteConfig } from './tools';
 export type { RouteConfig };

@@ -1,0 +1,11 @@
+{
+  "product.categoryName": "Category Name",
+  "product.categoryDescription": "Category Description",
+  "product.productCount": "Product Count",
+  "product.sort": "Sort",
+  "product.product": "Product",
+  "product.categoryDescriptionPrefix": "Category",
+  "product.categoryTitle": "Product Category",
+  "product.categorySearchPlaceholder": "Search category",
+  "product.addCategory": "Add Category"
+}

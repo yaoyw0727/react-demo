@@ -1,0 +1,20 @@
+{
+  "user.username": "Username",
+  "user.password": "Password",
+  "user.email": "Email",
+  "user.phone": "Phone",
+  "user.role": "Role",
+  "user.status": "Status",
+  "user.createdAt": "Created At",
+  "user.updatedAt": "Updated At",
+  "user.action": "Action",
+  "user.addUser": "Add User",
+  "user.editUser": "Edit User",
+  "user.deleteUser": "Delete User",
+  "user.confirmDelete": "Are you sure to delete this user?",
+  "user.title": "User Management",
+  "user.searchPlaceholder": "Search username",
+  "user.normalUser": "Normal User",
+  "user.statusEnabled": "Enabled",
+  "user.statusDisabled": "Disabled"
+}

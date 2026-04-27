@@ -1,0 +1,18 @@
+{
+  "role.name": "Role Name",
+  "role.description": "Description",
+  "role.permissions": "Permissions",
+  "role.addRole": "Add Role",
+  "role.editRole": "Edit Role",
+  "role.deleteRole": "Delete Role",
+  "role.confirmDelete": "Are you sure to delete this role?",
+  "role.title": "Role Management",
+  "role.searchPlaceholder": "Search role name",
+  "role.adminDescription": "System administrator with all permissions",
+  "role.normalUserDescription": "Normal user with basic permissions",
+  "role.guest": "Guest",
+  "role.guestDescription": "Guest user with view only permission",
+  "role.permissionView": "View",
+  "role.statusEnabled": "Enabled",
+  "role.statusDisabled": "Disabled"
+}
