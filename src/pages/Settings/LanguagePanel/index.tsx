@@ -2,7 +2,7 @@
  * 语言设置面板
  */
 import React, { useState } from 'react';
-import { Form, Card, message } from 'antd';
+import { Form, Card, App } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useLanguageStore, languages } from '../../../store/language';
 import type { Language } from '../../../store/language';
@@ -18,6 +18,7 @@ import i18n from '@/utils/i18n';
  * 支持切换系统语言
  */
 const LanguagePanel: React.FC = () => {
+  const { message } = App.useApp();
   const { language, setLanguage, resetLanguage } = useLanguageStore();
   const [form] = Form.useForm();
   const { t, i18n: i18nInstance } = useTranslation();

@@ -3,7 +3,7 @@
  * 提供布局模式、主题模式、主题色配置
  */
 import React, { useEffect, useState } from 'react';
-import { Form, message } from 'antd';
+import { Form, App } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useAppearanceStore } from '@/store/appearance';
 import { DEFAULT_APPEARANCE } from '@/constants';
@@ -22,6 +22,7 @@ import styles from './index.module.less';
  * 提供布局模式、主题模式、主题色配置
  */
 const AppearancePanel: React.FC = () => {
+  const { message } = App.useApp();
   const { layoutMode, themeMode, primaryColor, setLayoutMode, setThemeMode, setPrimaryColor, resetAppearance } = useAppearanceStore();
   const [form] = Form.useForm();
   const [selectedLayout, setSelectedLayout] = useState<LayoutMode>(layoutMode);
