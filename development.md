@@ -174,20 +174,18 @@ const ProductCategory: React.FC = () => {
 
 #### 1. 添加语言文件
 
-在 `src/locales/{语言代码}/` 目录下创建语言文件：
+在对应页面的 `locales/{语言代码}/` 目录下创建语言文件：
 
 ```bash
-src/locales/
+# 为某个页面添加语言文件
+src/pages/YourPage/locales/
 ├── zh-cn/
-│   ├── menu.json
-│   └── settings.json
-└── en-us/
-    ├── menu.json
-    └── settings.json
+│   └── your-page.json    # 中文
+├── en-us/
+│   └── your-page.json   # 英文
 # 新增语言
 └── ja-jp/
-    ├── menu.json
-    └── settings.json
+    └── your-page.json   # 日文
 ```
 
 #### 2. 添加语言选项到 store
@@ -225,7 +223,7 @@ const antLocale = useMemo(() => {
 
 #### 4. 添加页面翻译 key
 
-编辑语言文件 `src/locales/ja-jp/menu.json`：
+编辑语言文件 `src/pages/YourPage/locales/ja-jp/your-page.json`：
 
 ```json
 {
