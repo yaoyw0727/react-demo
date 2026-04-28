@@ -167,55 +167,57 @@ const ProductCategory: React.FC = () => {
 
 ### 当前支持的语言
 
-- `zh-CN`：简体中文
-- `en-US`：英文
+- `zh-cn`：简体中文
+- `en-us`：英文
 
 ### 添加新语言步骤
 
 #### 1. 添加语言文件
 
-在 `src/locales/` 目录下创建语言文件：
+在 `src/locales/{语言代码}/` 目录下创建语言文件：
 
 ```bash
 src/locales/
-├── zh-CN.json    # 中文翻译
-├── en-US.json   # 英文翻译
-└── ja-JP.json  # 新增：日文翻译
+├── zh-cn/
+│   ├── menu.json
+│   └── settings.json
+└── en-us/
+    ├── menu.json
+    └── settings.json
+# 新增语言
+└── ja-jp/
+    ├── menu.json
+    └── settings.json
 ```
 
-#### 2. 添加语言标识常量
+#### 2. 添加语言选项到 store
 
-在 `src/constants/index.ts` 中添加语言选项：
+编辑 `src/store/language.ts`：
 
 ```typescript
-export const LANGUAGE_OPTIONS = [
-  { value: 'zh-CN', label: '简体���文', flag: '🇨🇳' },
-  { value: 'en-US', label: 'English', flag: '🇺🇸' },
-  { value: 'ja-JP', label: '日本語', flag: '🇯🇵' }, // 新增
+export type Language = 'zh-cn' | 'en-us' | 'ja-jp'; // 新增
+
+export const languages: { key: Language; image: string; label: string; labelEn: string; nativeLabel: string }[] = [
+  { key: 'zh-cn', image: flagCn, label: '中文', labelEn: 'Chinese', nativeLabel: '中文' },
+  { key: 'en-us', image: flagEn, label: '英文', labelEn: 'English', nativeLabel: '英文' },
+  { key: 'ja-jp', image: flagJp, label: '日语', labelEn: 'Japanese', nativeLabel: '日本語' }, // 新增
 ];
 ```
 
-#### 3. 注册新语言到 i18next
+#### 3. 添加 antd 语言包
 
-编辑 `src/utils/i18n.ts`：
+编辑 `src/components/ThemeConfig/index.tsx`，在 locale 导入和 switch 语句中添加：
 
 ```typescript
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import jaJP from 'antd/locale/ja_JP'; // 新增
 
-const resources = {
-  'zh-CN': { translation: require('../locales/zh-CN.json') },
-  'en-US': { translation: require('../locales/en-US.json') },
-  'ja-JP': { translation: require('../locales/ja-JP.json') }, // 新增
-};
-
-// 在 ConfigProvider 中使用
 const antLocale = useMemo(() => {
   switch (language) {
-    case 'zh-CN': return zhCN;
-    case 'en-US': return enUS;
-    case 'ja-JP': return jaJP; // 新增
+    case 'zh-cn': return zhCN;
+    case 'en-us': return enUS;
+    case 'ja-jp': return jaJP; // 新增
     default: return zhCN;
   }
 }, [language]);
@@ -223,14 +225,12 @@ const antLocale = useMemo(() => {
 
 #### 4. 添加页面翻译 key
 
-编辑语言文件 `src/locales/ja-JP.json`：
+编辑语言文件 `src/locales/ja-jp/menu.json`：
 
 ```json
 {
   "menu.home": "ホーム",
-  "menu.about": "について",
-  "settings.appearance": "外観設定",
-  "settings.language": "言語設定"
+  "menu.about": "について"
 }
 ```
 
