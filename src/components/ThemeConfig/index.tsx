@@ -29,7 +29,11 @@ const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // 根据语言获取对应的 locale
   const antLocale = useMemo(() => {
-    return language === 'zh-CN' ? zhCN : enUS;
+    switch (language) {
+      case 'zh-cn': return zhCN;
+      case 'en-us': return enUS;
+      default: return zhCN;
+    }
   }, [language]);
 
   return (
