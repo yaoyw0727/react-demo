@@ -1,12 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { Table, Button, Input, Typography, Pagination } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useTableScrollY } from '@/layouts/hooks/useTableScrollY';
 import styles from './index.module.less';
 
 const { Title } = Typography;
-
-// 模拟分类数据 - 在组件内部定义以访问t函数
 
 /**
  * 产品分类页面
@@ -14,22 +13,7 @@ const { Title } = Typography;
  */
 const ProductCategory: React.FC = () => {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(300);
-
-  // 动态计算表格滚动高度
-  useEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setScrollY(rect.height - 76);
-      }
-    };
-
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
+  const { containerRef, scrollY } = useTableScrollY({ offset: 76 });
   
   const columns = [
     {

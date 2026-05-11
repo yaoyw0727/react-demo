@@ -6,11 +6,8 @@ import styles from './index.module.less';
 
 const { Title } = Typography;
 
-// 模拟产品数据 - 在组件内部定义以访问t函数
-
 /**
  * 产品列表页面
- * 展示产品列表，支持按分类和状态筛选
  */
 const ProductList: React.FC = () => {
   const { t } = useTranslation();

@@ -44,11 +44,9 @@ export const DEFAULT_APPEARANCE = {
 };
 
 /** 主题相关的布局背景颜色和文字颜色 **/
-export const DEFAULT_LAYOUT_COLORS: {
-  [key: string]: string; // 添加索引签名
-} = {
-  darkBg: '#001529', // 深色主题背景颜色
-  lightBg: '#FFF', // 浅色主题背景颜色、深色主题文字颜色
-  darkText: '#FFF', // 浅色主题文字颜色
-  lightText: '#000', // 深色主题文字颜色
-}
+export const DEFAULT_LAYOUT_COLORS: Record<'darkBg' | 'lightBg' | 'darkText' | 'lightText', string> = {
+  darkBg: '#001529',
+  lightBg: '#FFF',
+  darkText: '#FFF',
+  lightText: '#000',
+};

@@ -3,11 +3,11 @@
  * 提供菜单相关状态和操作方法
  * 用于在布局组件中管理菜单选中状态、展开状态和面包屑
  */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { find, some, replace } from 'lodash';
-import { routes } from '../../routes';
+import { routes, type RouteConfig } from '../../routes';
 import { generateMenuItems } from '../../routes/tools';
 import { findParentPath, getBreadcrumbKeys } from '../MainLayout/tools';
 
@@ -38,13 +38,10 @@ export const useMenu = (): MenuHookResult => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // 生成菜单项
-  const menuItems = generateMenuItems(routes, t).map((item: any) => ({
-    ...item,
-    children: item.children?.map((child: any) => ({
-      ...child,
-    })),
-  }));
+  // 生成菜单项 - 使用 useMemo 缓存
+  const menuItems = useMemo(() => {
+    return generateMenuItems(routes, (key: string) => t(key));
+  }, [t]);
 
   // 展开的子菜单 key
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -60,8 +57,8 @@ export const useMenu = (): MenuHookResult => {
   }, [location.pathname]);
 
   // 处理菜单点击事件，跳转到对应页面
-  const handleMenuClick = ({ key }: { key: string }) => {
-    const route = find(routes, { path: key });
+  const handleMenuClick = useCallback(({ key }: { key: string }) => {
+    const route = find(routes, { path: key }) as RouteConfig | undefined;
     if (route) {
       navigate(key);
       return;
@@ -69,7 +66,7 @@ export const useMenu = (): MenuHookResult => {
 
     for (const r of routes) {
       if (r.children) {
-        const child: any = find(r.children, (c: any) => replace(c.path, r.path + '/', '') === key);
+        const child = find(r.children, (c: RouteConfig) => replace(c.path, r.path + '/', '') === key) as RouteConfig | undefined;
         if (child) {
           navigate(child.path);
           return;
@@ -77,21 +74,21 @@ export const useMenu = (): MenuHookResult => {
       }
     }
     navigate(key);
-  };
+  }, [navigate]);
 
   // 处理菜单展开/收起
-  const handleOpenChange = (keys: string[]) => {
+  const handleOpenChange = useCallback((keys: string[]) => {
     setOpenKeys(keys);
-  };
+  }, []);
 
   // 计算当前选中的菜单项
   const selectedKeys = useMemo(() => {
     const pathname = location.pathname;
     const keys = [pathname];
 
-    const route: any = find(routes, (r: any) => r.children && some(r.children, { path: pathname }));
+    const route = find(routes, (r: RouteConfig) => r.children && some(r.children, { path: pathname })) as RouteConfig | undefined;
     if (route?.children) {
-      const child = find(route.children, { path: pathname });
+      const child = find(route.children, { path: pathname }) as RouteConfig | undefined;
       if (child) {
         keys.push(replace(child.path, route.path + '/', ''));
       }
@@ -100,13 +97,15 @@ export const useMenu = (): MenuHookResult => {
     return keys;
   }, [location.pathname]);
 
-  // 获取面包屑翻译 key
-  const breadcrumbKeys = getBreadcrumbKeys(location.pathname);
-  const breadcrumbItems = breadcrumbKeys.map((key: string, index: number) => ({
-    title: index === 0
-      ? <Link to="/">{t(key) || t('menu.home')}</Link>
-      : t(key) || key,
-  }));
+  // 获取面包屑 - 使用 useMemo 缓存
+  const breadcrumbItems = useMemo(() => {
+    const breadcrumbKeys = getBreadcrumbKeys(location.pathname);
+    return breadcrumbKeys.map((key: string, index: number) => ({
+      title: index === 0
+        ? <Link to="/">{t(key) || t('menu.home')}</Link>
+        : t(key) || key,
+    }));
+  }, [location.pathname, t]);
 
   return {
     menuItems,

@@ -86,8 +86,8 @@
 页面标题和工具栏固定，表格内容区独立滚动，分页固定。
 
 **实现方式**：
-- 使用 Table 组件的 `scroll={{ y: height }}` 属性
-- 动态计算表格高度（避免硬编码）
+- 使用 `useTableScrollY` Hook 动态计算表格高度
+- 使用 Table 组件的 `scroll={{ y: scrollY }}` 属性
 - 分页组件独立放置在表格下方
 
 **参考页面**：`src/pages/ProductCategory`
@@ -95,27 +95,21 @@
 **代码示例**：
 
 ```tsx
+import { useTableScrollY } from '@/layouts/hooks/useTableScrollY';
+
 const ProductCategory: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(300);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setScrollY(rect.height - 76);
-      }
-    };
-
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
+  const { t } = useTranslation();
+  const { containerRef, scrollY } = useTableScrollY({ offset: 76 });
 
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>产品分类</Title>
-      <div className={styles.toolbar}>{/* 搜索栏等工具 */}</div>
+      <Title level={3} className={styles.title}>{t('product.categoryTitle')}</Title>
+      <div className={styles.toolbar}>
+        <Input placeholder={t('product.categorySearchPlaceholder')} prefix={<SearchOutlined />} />
+        <Button type="primary" icon={<PlusOutlined />}>
+          {t('product.addCategory')}
+        </Button>
+      </div>
       <div className={styles.tableContainer} ref={containerRef}>
         <Table columns={columns} dataSource={data} pagination={false} scroll={{ y: scrollY }} />
       </div>
@@ -126,6 +120,17 @@ const ProductCategory: React.FC = () => {
   );
 };
 ```
+
+**Hook 参数说明**：
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| offset | number | 60 | 表格顶部到容器顶部的偏移量 |
+| debounceMs | number | 100 | resize 事件防抖时间（毫秒） |
+
+**注意**：不同页面的 offset 值可能不同，需要根据实际布局调整：
+- User 页面：`offset: 60`
+- ProductCategory 页面：`offset: 76`
 
 ```less
 .container {
@@ -167,8 +172,8 @@ const ProductCategory: React.FC = () => {
 
 ### 当前支持的语言
 
-- `zh-cn`：简体中文
-- `en-us`：英文
+- `zh-CN`：简体中文
+- `en-US`：英文
 
 ### 添加新语言步骤
 
@@ -193,12 +198,12 @@ src/pages/YourPage/locales/
 编辑 `src/store/language.ts`：
 
 ```typescript
-export type Language = 'zh-cn' | 'en-us' | 'ja-jp'; // 新增
+export type Language = 'zh-CN' | 'en-US' | 'ja-JP'; // 新增
 
 export const languages: { key: Language; image: string; label: string; labelEn: string; nativeLabel: string }[] = [
-  { key: 'zh-cn', image: flagCn, label: '中文', labelEn: 'Chinese', nativeLabel: '中文' },
-  { key: 'en-us', image: flagEn, label: '英文', labelEn: 'English', nativeLabel: '英文' },
-  { key: 'ja-jp', image: flagJp, label: '日语', labelEn: 'Japanese', nativeLabel: '日本語' }, // 新增
+  { key: 'zh-CN', image: flagCn, label: '中文', labelEn: 'Chinese', nativeLabel: '中文' },
+  { key: 'en-US', image: flagEn, label: '英文', labelEn: 'English', nativeLabel: '英文' },
+  { key: 'ja-JP', image: flagJp, label: '日语', labelEn: 'Japanese', nativeLabel: '日本語' }, // 新增
 ];
 ```
 
@@ -213,9 +218,9 @@ import jaJP from 'antd/locale/ja_JP'; // 新增
 
 const antLocale = useMemo(() => {
   switch (language) {
-    case 'zh-cn': return zhCN;
-    case 'en-us': return enUS;
-    case 'ja-jp': return jaJP; // 新增
+    case 'zh-CN': return zhCN;
+    case 'en-US': return enUS;
+    case 'ja-JP': return jaJP; // 新增
     default: return zhCN;
   }
 }, [language]);

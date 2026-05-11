@@ -32,23 +32,18 @@ export const getActiveColor = (color: string): string => {
 
 /**
  * 获取主题对应的的布局颜色
- * @param color - 主题  dark | light
- * 
+ * @param themeMode - 主题模式 light | dark
  */
 export const getThemeLayoutColors = (themeMode: 'light' | 'dark') => {
-  if(!['dark', 'light']?.includes(themeMode)) return {}
+  const bgColor = themeMode === 'dark' ? DEFAULT_LAYOUT_COLORS.darkBg : DEFAULT_LAYOUT_COLORS.lightBg;
+  const textColor = themeMode === 'dark' ? DEFAULT_LAYOUT_COLORS.darkText : DEFAULT_LAYOUT_COLORS.lightText;
 
-  const bgColorKey = `${themeMode}Bg`; // 背景色key
-  const textColorKey = `${themeMode}Text`; // 文字颜色key
-
-  const layoutColor =  {
-    headerBg: DEFAULT_LAYOUT_COLORS[bgColorKey],
-    siderBg: DEFAULT_LAYOUT_COLORS[bgColorKey],
-    triggerBg: DEFAULT_LAYOUT_COLORS[bgColorKey],
-    triggerColor: DEFAULT_LAYOUT_COLORS[textColorKey],
-  }
-
-  return layoutColor
+  return {
+    headerBg: bgColor,
+    siderBg: bgColor,
+    triggerBg: bgColor,
+    triggerColor: textColor,
+  };
 };
 
 /**

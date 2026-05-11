@@ -10,14 +10,6 @@ import { useAppearanceStore } from '../../store/appearance';
 import { useLanguageStore } from '../../store/language';
 import { getHoverColor, getActiveColor, getThemeLayoutColors } from './tools';
 
-/**
- * 主题配置组件
- * @param children - 子组件
- */
-/**
- * 主题配置组件
- * 使用 Ant Design ConfigProvider 管理全局主题和语言
- */
 const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { primaryColor, themeMode = 'light' } = useAppearanceStore();
   const { language = 'zh-CN' } = useLanguageStore();
@@ -30,8 +22,8 @@ const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 根据语言获取对应的 locale
   const antLocale = useMemo(() => {
     switch (language) {
-      case 'zh-cn': return zhCN;
-      case 'en-us': return enUS;
+      case 'zh-CN': return zhCN;
+      case 'en-US': return enUS;
       default: return zhCN;
     }
   }, [language]);

@@ -1,35 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Table, Typography, Button, Space, Input, Pagination } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useTableScrollY } from '@/layouts/hooks/useTableScrollY';
 import styles from './index.module.less';
 
 const { Title } = Typography;
-
-// 模拟用户数据 - 在组件内部定义以访问t函数
 
 /**
  * 用户管理页面
  * 展示用户列表，支持搜索和分页
  */
 const User: React.FC = () => {
-  // 动态计算表格滚动高度
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(300);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setScrollY(rect.height - 60);
-      }
-    };
-
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
+  const { containerRef, scrollY } = useTableScrollY({ offset: 60 });
 
   const columns = [
     {
