@@ -10,6 +10,8 @@ import Role from '@/pages/System/Role';
 import ProductList from '@/pages/Product/ProductList';
 import ProductCategory from '@/pages/Product/ProductCategory';
 import Settings from '@/pages/Settings';
+import NotFound from '@/pages/NotFound';
+import { SETTINGS_CONFIG } from '@/constants/settings';
 import type { RouteConfig } from './tools';
 export type { RouteConfig };
 
@@ -40,5 +42,8 @@ export const routes: RouteConfig[] = [
       { path: '/product/category', component: ProductCategory, title: '产品分类', labelKey: 'menu.productCategory' },
     ],
   },
-  { path: '/settings', component: Settings, title: '设置', labelKey: 'menu.settings', icon: <SettingOutlined />, hidden: true },
+  ...(SETTINGS_CONFIG.length > 0
+    ? [{ path: '/settings', component: Settings, title: '设置', labelKey: 'menu.settings', icon: <SettingOutlined />, hidden: true }]
+    : []),
+  { path: '*', component: NotFound, title: '404', labelKey: 'common.notFound', hidden: true },
 ];

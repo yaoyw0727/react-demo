@@ -1,39 +1,46 @@
 /**
  * 设置页面
- * 包含外观设置和语言设置两个面板
+ * 动态根据配置生成设置面板
  */
 import React, { useState } from 'react';
 import { Menu } from 'antd';
-import { SkinOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import AppearancePanel from './AppearancePanel';
-import LanguagePanel from './LanguagePanel';
+import { SETTINGS_CONFIG } from '@/constants/settings';
 import styles from './index.module.less';
 import { useAppearanceStore } from '../../store/appearance';
 
-/**
- * 设置页面组件
- */
 const Settings: React.FC = () => {
-  const [activeKey, setActiveKey] = useState('appearance');
+  const [activeKey, setActiveKey] = useState(SETTINGS_CONFIG[0]?.key || '');
   const themeMode = useAppearanceStore((state) => state.themeMode);
   const { t } = useTranslation();
 
-  const settingMenus = [
-    { key: 'appearance', icon: <SkinOutlined />, label: t('settings.appearance') },
-    { key: 'language', icon: <GlobalOutlined />, label: t('settings.language') },
-  ];
+  const settingMenus = SETTINGS_CONFIG.map((item) => ({
+    key: item.key,
+    icon: item.icon,
+    label: t(item.labelKey),
+  }));
 
-  const renderPanel = () => {
-    switch (activeKey) {
-      case 'appearance':
-        return <AppearancePanel />;
-      case 'language':
-        return <LanguagePanel />;
-      default:
-        return null;
-    }
-  };
+  const ActivePanel = SETTINGS_CONFIG.find((item) => item.key === activeKey)?.component;
+
+  if (SETTINGS_CONFIG.length === 0) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <div style={{ textAlign: 'center', color: '#999' }}>{t('settings.noSettings')}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (SETTINGS_CONFIG.length === 1) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          {ActivePanel && <ActivePanel />}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -48,7 +55,7 @@ const Settings: React.FC = () => {
         />
       </div>
       <div className={styles.content}>
-        {renderPanel()}
+        {ActivePanel && <ActivePanel />}
       </div>
     </div>
   );

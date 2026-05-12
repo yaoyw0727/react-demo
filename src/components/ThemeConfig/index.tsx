@@ -9,17 +9,19 @@ import enUS from 'antd/locale/en_US';
 import { useAppearanceStore } from '../../store/appearance';
 import { useLanguageStore } from '../../store/language';
 import { getHoverColor, getActiveColor, getThemeLayoutColors } from './tools';
+import { SETTINGS_CONFIG } from '@/constants/settings';
 
 const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { primaryColor, themeMode = 'light' } = useAppearanceStore();
   const { language = 'zh-CN' } = useLanguageStore();
+
+  const hasAppearance = SETTINGS_CONFIG.some((item) => item.key === 'appearance');
 
   const primaryHover = getHoverColor(primaryColor);
   const primaryActive = getActiveColor(primaryColor);
   const primaryShadow = `${primaryColor}40`;
   const layoutColors = getThemeLayoutColors(themeMode);
 
-  // 根据语言获取对应的 locale
   const antLocale = useMemo(() => {
     switch (language) {
       case 'zh-CN': return zhCN;
@@ -28,30 +30,30 @@ const ThemeConfig: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   }, [language]);
 
-  return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: primaryColor,
-        },
+  const themeConfig = hasAppearance
+    ? {
+        token: { colorPrimary: primaryColor },
         algorithm: themeMode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        components: {
-          Layout: layoutColors,
-        },
-      }}
-      locale={antLocale}
-    >
+        components: { Layout: layoutColors },
+      }
+    : {
+        algorithm: themeMode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        components: { Layout: layoutColors },
+      };
+
+  const style = hasAppearance
+    ? {
+        '--primary-color': primaryColor,
+        '--primary-hover': primaryHover,
+        '--primary-active': primaryActive,
+        '--primary-shadow': primaryShadow,
+      } as React.CSSProperties
+    : {};
+
+  return (
+    <ConfigProvider theme={themeConfig} locale={antLocale}>
       <AntApp>
-        {/* 将主题色作为 CSS 变量传递给子组件 */}
-        <div
-          data-theme={themeMode}
-          style={{
-            '--primary-color': primaryColor,
-            '--primary-hover': primaryHover,
-            '--primary-active': primaryActive,
-            '--primary-shadow': primaryShadow,
-          } as React.CSSProperties}
-        >
+        <div data-theme={themeMode} style={style}>
           {children}
         </div>
       </AntApp>

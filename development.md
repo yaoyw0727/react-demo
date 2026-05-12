@@ -15,9 +15,11 @@
 7. [添加新布局模式](#七添加新布局模式)
 8. [添加新语言](#八添加新语言)
 9. [添加新设置项](#九添加新设置项)
-10. [状态管理](#十状态管理)
-11. [路由配置](#十一路由配置)
-12. [常见问题](#十二常见问题)
+10. [弹窗与抽屉组件](#十弹窗与抽屉组件)
+11. [状态管理](#十一状态管理)
+12. [路由配置](#十二路由配置)
+13. [404 页面](#十三404-页面)
+14. [常见问题](#十四常见问题)
 
 ---
 
@@ -38,10 +40,11 @@
 
 ### 1.2 核心特性
 
-- **主题切换**：支持浅色/深色主题切换
-- **多语言支持**：支持简体中文、英文
-- **布局模式**：支持顶部菜单和侧边栏菜单两种布局
+- **主题切换**：支持浅色/深色主题切换（需配置 appearance 项）
+- **多语言支持**：支持简体中文、英文（需配置 language 项）
+- **布局模式**：支持顶部菜单和侧边栏菜单两种布局（需配置 appearance 项）
 - **响应式设计**：适配不同屏幕尺寸
+- **设置可配置**：通过 `SETTINGS_CONFIG` 配置显示哪些设置项
 
 ### 1.3 关键命令
 
@@ -169,7 +172,8 @@ src/
 │   └── i18n.ts                 # 国际化初始化配置
 │
 ├── constants/                  # 常量定义
-│   └── index.ts                # 项目常量（主题色、布局模式等）
+│   ├── index.ts                # 项目常量（主题色、布局模式等）
+│   └── settings.tsx            # 设置配置项
 │
 ├── locales/                    # 公共翻译文件（所有页面都能用）
 │   ├── zh-cn/zh-cn.json
@@ -191,7 +195,7 @@ src/
 | Store 文件 | `{name}.ts` | `appearance.ts`、`language.ts` |
 
 **组件文件命名规则**：
-- **`index.tsx`** - 目录作为单一组件使用
+- **`index.tsx`** - 目录作为单一组件使用（或者组件有单独的样式文件、工具函数文件）
   - 目录本身就是一个完整的功能单元
   - 目录只包含一个主要组件
   - 示例：
@@ -210,20 +214,54 @@ src/
 
 ### 3.3 页面目录结构规范
 
-每个页面必须按照以下结构创建：
+页面结构根据 `SETTINGS_CONFIG` 的配置决定：
 
+**没有 language 配置项时**（不需要多语言）：
 ```
-pages/YourPage/           # 页面目录，目录名使用 PascalCase（如 ProductList）
-├── index.tsx             # 必选，页面主组件
-├── index.module.less     # 必选，样式文件（使用 CSS Modules）
-└── locales/              # 必选，翻译文件目录
-    ├── zh-cn/           # 必选，中文翻译
-    │   └── zh-cn.json   # 必选，文件名必须是 {语言代码}.json
-    └── en-us/           # 必选，英文翻译
+pages/YourPage/
+├── index.tsx             # 页面主组件
+└── index.module.less    # 样式文件
+```
+翻译直接使用中文 key，如 `t('用户管理')`。
+
+**有 language 配置项时**（需要多语言）：
+```
+pages/YourPage/
+├── index.tsx             # 页面主组件
+├── index.module.less    # 样式文件
+└── locales/              # 翻译文件目录
+    ├── zh-cn/           # 中文翻译
+    │   └── zh-cn.json
+    └── en-us/           # 英文翻译
         └── en-us.json
 ```
 
-### 3.3 语言代码规范
+### 3.3 翻译文件说明
+
+翻译文件分为两类：**全局翻译**和**页面翻译**。
+
+| 类型 | 位置 | 用途 |
+|------|------|------|
+| 全局翻译 | `src/locales/{语言}/{语言}.json` | 框架和所有页面通用的文案 |
+| 页面翻译 | `src/pages/{PageName}/locales/{语言}/{语言}.json` | 页面特有的文案 |
+
+**何时需要页面翻译**：
+- 如果 `SETTINGS_CONFIG` 中没有 `language` 配置项，所有页面不需要创建 `locales/` 文件夹
+- 直接使用 `t('标题')`，key 就是最终显示的文字（如 `t('用户管理')` 显示"用户管理"）
+- 如果有 `language` 配置项，页面可按需创建 `locales/` 文件夹实现多语言
+
+**翻译 fallback 机制**：
+- i18next 配置了 `missingKeyNoValueFallbackToKey: true`
+- 找不到翻译时，显示 key 本身（如 `t('about.title')` 显示 "about.title"）
+- 利用这个特性，没有语言切换需求时，直接写中文 key 即可
+
+**全局翻译文件说明**：
+`src/locales/` 只保留系统框架和公共 key：
+- 菜单：`menu.home`、`menu.about`、`menu.settings` 等
+- 通用：`common.save`、`common.cancel`、`common.success` 等
+- **不应放页面级翻译**
+
+### 3.4 语言代码规范
 
 | 语言 | 代码（目录名） | 代码（代码中） |
 |------|---------------|---------------|
@@ -334,6 +372,42 @@ const handleClick = (e: any) => { ... };
 
 本项目有三种页面滚动模式，根据页面类型选择。
 
+### 5.0 创建页面前的配置判断
+
+在创建新页面之前，需要先判断 `SETTINGS_CONFIG` 的配置情况，以决定页面结构。
+
+#### 判断一：是否有 language 配置项
+
+| 情况 | 页面结构 |
+|------|----------|
+| 没有 `language` 配置项 | 不需要创建 `locales/` 文件夹，key 即显示文字（如 `t('用户管理')`） |
+| 有 `language` 配置项 | 可按需创建 `locales/` 文件夹，实现多语言 |
+
+**没有 language 配置项时的页面结构**：
+```
+src/pages/NewPage/
+├── index.tsx           # 页面主组件
+└── index.module.less   # 样式文件
+```
+翻译直接使用全局翻译，如 `t('menu.home')`、`t('common.save')`；或者最终显示的文字，（如 `t('用户管理')` 显示"用户管理"）。
+
+**有 language 配置项时的页面结构**：
+```
+src/pages/NewPage/
+├── index.tsx
+├── index.module.less
+└── locales/             
+    ├── zh-cn/zh-cn.json
+    └── en-us/en-us.json
+```
+
+#### 判断二：是否有 appearance 配置项
+
+| 情况 | CSS 变量 |
+|------|----------|
+| 没有 `appearance` 配置项 | 不使用主题色 CSS 变量（`var(--primary-color)`），依赖 antd 默认主题 |
+| 有 `appearance` 配置项 | 可使用主题色 CSS 变量，ThemeConfig 会注入这些变量 |
+
 ### 5.1 模式一：整区滚动（简单页面）
 
 **适用场景**：页面内容不多，不需要表格，如首页、关于页。
@@ -351,18 +425,17 @@ import styles from './index.module.less';
 
 const { Title, Paragraph } = Typography;
 
-/**
- * 关于页面
- * 展示项目介绍信息
- */
 const About: React.FC = () => {
   const { t } = useTranslation();
 
+  // 根据 SETTINGS_CONFIG 是否有 language 配置项决定翻译方式
+  // 没有 language 配置项时：key 即显示文字
+  // 有 language 配置项时：使用带命名空间的 key，如 t('about.title')
   return (
     <div className={styles.container}>
-      <Title level={2} className={styles.title}>{t('about.title')}</Title>
+      <Title level={2} className={styles.title}>{t('关于')}</Title>
       <Card>
-        <Paragraph>{t('about.content')}</Paragraph>
+        <Paragraph>{t('这是一个基于 React + Ant Design 的后台管理系统。')}</Paragraph>
       </Card>
     </div>
   );
@@ -389,25 +462,7 @@ export default About;
 }
 ```
 
-#### 步骤二：创建翻译文件
-
-```json
-// src/pages/About/locales/zh-cn/zh-cn.json
-{
-  "about.title": "关于",
-  "about.content": "这是一个基于 React + Ant Design 的后台管理系统。"
-}
-```
-
-```json
-// src/pages/About/locales/en-us/en-us.json
-{
-  "about.title": "About",
-  "about.content": "This is a React + Ant Design based admin system."
-}
-```
-
-#### 步骤三：注册路由
+#### 步骤二：注册路由
 
 编辑 `src/routes/index.tsx`：
 
@@ -415,16 +470,95 @@ export default About;
 import About from '@/pages/About';
 
 // 在 routes 数组中添加
+// labelKey 使用公共翻译 key
 { path: '/about', component: About, title: '关于', labelKey: 'menu.about' }
 ```
 
-#### 步骤四：添加菜单翻译
+#### 步骤三：页面翻译（根据配置决定）
 
-编辑 `src/locales/zh-cn/zh-cn.json`：
+**情况 A：没有 language 配置项**
+页面不创建 `locales/` 文件夹，直接使用中文 key 作为显示文字：
 
+```tsx
+// src/pages/About/index.tsx
+const About: React.FC = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div>
+      {/* key 即显示的文字 */}
+      <Title level={2}>{t('关于')}</Title>
+      <Card>
+        <Paragraph>{t('这是一个基于 React + Ant Design 的后台管理系统。')}</Paragraph>
+      </Card>
+    </div>
+  );
+};
+```
+
+**情况 B：有 language 配置项**
+在页面目录下创建 `locales/` 文件夹：
+
+```
+src/pages/System/User/locales/
+├── zh-cn/zh-cn.json
+└── en-us/en-us.json
+```
+
+页面代码：
+```tsx
+const columns = [
+  { title: t('user.username'), dataIndex: 'username', key: 'username' },
+  { title: t('user.email'), dataIndex: 'email', key: 'email' },
+  // ...
+];
+
+<Input placeholder={t('user.searchPlaceholder')} />
+<Button>{t('user.addUser')}</Button>
+```
+
+翻译文件：
 ```json
+// src/pages/System/User/locales/zh-cn/zh-cn.json
 {
-  "menu.about": "关于"
+  "user.username": "用户名",
+  "user.email": "邮箱",
+}
+```
+src/pages/About/locales/
+├── zh-cn/zh-cn.json
+└── en-us/en-us.json
+```
+
+页面代码使用带命名空间的 key：
+```tsx
+// src/pages/About/index.tsx
+const About: React.FC = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div>
+      <Title level={2}>{t('about.title')}</Title>
+      <Card>
+        <Paragraph>{t('about.content')}</Paragraph>
+      </Card>
+    </div>
+  );
+};
+```
+
+翻译文件内容：
+```json
+// src/pages/About/locales/zh-cn/zh-cn.json
+{
+  "about.title": "关于",
+  "about.content": "这是一个基于 React + Ant Design 的后台管理系统。"
+}
+
+// src/pages/About/locales/en-us/en-us.json
+{
+  "about.title": "About",
+  "about.content": "This is a React + Ant Design based admin system."
 }
 ```
 
@@ -453,8 +587,11 @@ const { Title } = Typography;
 const User: React.FC = () => {
   const { t } = useTranslation();
 
+  // 根据 SETTINGS_CONFIG 是否有 language 配置项决定翻译方式
+  // 没有 language 配置项时：key 即显示文字
+  // 有 language 配置项时：使用带命名空间的 key，如 t('user.username')
   const columns = [
-    { title: t('user.username'), dataIndex: 'username', key: 'username' },
+    { title: t('用户名'), dataIndex: 'username', key: 'username' },
     { title: t('user.email'), dataIndex: 'email', key: 'email' },
     { title: t('user.role'), dataIndex: 'role', key: 'role' },
     {
@@ -474,20 +611,20 @@ const User: React.FC = () => {
     key: String(i + 1),
     username: `user${i + 1}`,
     email: `user${i + 1}@example.com`,
-    role: t('user.normalUser'),
+    role: t('普通用户'),
   }));
 
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>{t('user.title')}</Title>
+      <Title level={3} className={styles.title}>{t('用户管理')}</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('user.searchPlaceholder')}
+          placeholder={t('搜索用户名...')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('user.addUser')}
+          {t('新增用户')}
         </Button>
       </div>
       <div className={styles.tableWrapper}>
@@ -541,21 +678,28 @@ export default User;
 }
 ```
 
-#### 步骤二：创建翻译文件
+#### 步骤二：页面翻译（根据配置决定）
 
-```json
-// src/pages/System/User/locales/zh-cn/zh-cn.json
-{
-  "user.title": "用户管理",
-  "user.username": "用户名",
-  "user.email": "邮箱",
-  "user.role": "角色",
-  "user.action": "操作",
-  "user.searchPlaceholder": "搜索用户名...",
-  "user.addUser": "新增用户",
-  "user.normalUser": "普通用户"
-}
+**情况 A：没有 language 配置项**
+页面不创建 `locales/` 文件夹，key 即显示文字：
+
+```tsx
+// 页面中使用
+const columns = [
+  { title: t('用户名'), dataIndex: 'username', key: 'username' },
+  { title: t('邮箱'), dataIndex: 'email', key: 'email' },
+  // ...
+];
+
+// 搜索框
+<Input placeholder={t('搜索用户名...')} />
+
+// 按钮
+<Button>{t('新增用户')}</Button>
 ```
+
+**情况 B：有 language 配置项**
+在页面目录下创建 `locales/` 文件夹，翻译文件格式同上。
 
 #### 步骤三：注册路由
 
@@ -595,38 +739,39 @@ const { Title } = Typography;
  */
 const ProductCategory: React.FC = () => {
   const { t } = useTranslation();
-  
+
   // 使用 useTableScrollY 计算表格高度
   // offset 参数根据实际布局调整：有标题+工具栏时用 76
   const { containerRef, scrollY } = useTableScrollY({ offset: 76 });
 
+  // 根据 SETTINGS_CONFIG 是否有 language 配置项决定翻译方式
   const columns = [
-    { title: t('product.categoryName'), dataIndex: 'name', key: 'name' },
-    { title: t('product.categoryDescription'), dataIndex: 'description', key: 'description' },
-    { title: t('product.productCount'), dataIndex: 'productCount', key: 'productCount' },
-    { title: t('product.sort'), dataIndex: 'sort', key: 'sort' },
+    { title: t('分类名称'), dataIndex: 'name', key: 'name' },
+    { title: t('分类描述'), dataIndex: 'description', key: 'description' },
+    { title: t('产品数量'), dataIndex: 'productCount', key: 'productCount' },
+    { title: t('排序'), dataIndex: 'sort', key: 'sort' },
   ];
 
   // 模拟数据
   const data = Array.from({ length: 30 }, (_, i) => ({
     key: String(i + 1),
-    name: `${t('product.product')} ${i + 1}`,
-    description: `${t('product.categoryDescriptionPrefix')} ${i + 1}`,
+    name: `产品 ${i + 1}`,
+    description: `分类 ${i + 1}`,
     productCount: Math.floor(Math.random() * 100),
     sort: i + 1,
   }));
 
   return (
     <div className={styles.container}>
-      <Title level={3} className={styles.title}>{t('product.categoryTitle')}</Title>
+      <Title level={3} className={styles.title}>{t('产品分类')}</Title>
       <div className={styles.toolbar}>
         <Input
-          placeholder={t('product.categorySearchPlaceholder')}
+          placeholder={t('搜索分类...')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />}>
-          {t('product.addCategory')}
+          {t('新增分类')}
         </Button>
       </div>
       {/* 将 containerRef 绑定到表格容器 */}
@@ -933,29 +1078,53 @@ const antLocale = useMemo(() => {
 
 ## 九、添加新设置项
 
-### 9.1 设置页面结构
+### 9.1 设置配置项
 
-设置页面位于 `src/pages/Settings/`，采用"左侧菜单 + 右侧内容"的布局：
+本项目使用 `SETTINGS_CONFIG` 统一配置可用的设置项，配置文件位于 `src/constants/settings.tsx`。
 
+```typescript
+import { SkinOutlined, GlobalOutlined } from '@ant-design/icons';
+import AppearancePanel from '@/pages/Settings/AppearancePanel';
+import LanguagePanel from '@/pages/Settings/LanguagePanel';
+
+export interface SettingItem {
+  key: string;
+  labelKey: string;
+  icon: React.ReactNode;
+  component: React.ComponentType;
+}
+
+export const SETTINGS_CONFIG: SettingItem[] = [
+  {
+    key: 'appearance',
+    labelKey: 'settings.appearance',
+    icon: <SkinOutlined />,
+    component: AppearancePanel,
+  },
+  {
+    key: 'language',
+    labelKey: 'settings.language',
+    icon: <GlobalOutlined />,
+    component: LanguagePanel,
+  },
+];
 ```
-src/pages/Settings/
-├── index.tsx           # 设置主页（包含菜单和内容切换）
-├── index.module.less
-├── AppearancePanel/    # 外观设置
-│   ├── index.tsx
-│   ├── components/     # 外观设置子组件
-│   │   ├── LayoutModeSelector/
-│   │   ├── ThemeModeSelector/
-│   │   └── ThemeColorSelector/
-│   └── locales/
-├── LanguagePanel/      # 语言设置
-│   ├── index.tsx
-│   └── locales/
-└── components/         # 公共组件（如 ActionsBar）
-    └── ActionsBar/
-```
 
-### 9.2 添加新设置面板步骤
+### 9.2 配置项为空时的行为
+
+- **用户下拉菜单**：不显示设置入口
+- **访问 /settings**：显示 404 页面
+- **主题色 CSS 变量**：不设置（使用 antd 默认主题色）
+- **页面翻译**：不需要创建 `locales/` 文件夹，key 即显示文字
+
+### 9.3 配置项与页面的关系
+
+| 配置项 | 无此配置项时页面行为 |
+|--------|---------------------|
+| appearance | 不使用主题色 CSS 变量，依赖 antd 默认主题 |
+| language | 不创建 `locales/` 文件夹，key 即显示文字 |
+
+### 9.4 添加新设置面板步骤
 
 假设要添加"通知设置"面板。
 
@@ -969,15 +1138,10 @@ import { useTranslation } from 'react-i18next';
 import ActionsBar from '../components/ActionsBar';
 import styles from './index.module.less';
 
-/**
- * 通知设置面板
- * 配置系统通知相关选项
- */
 const NotificationPanel: React.FC = () => {
   const { message } = App.useApp();
   const { t } = useTranslation();
-  
-  // 实际项目中，这里应该连接 store 来存储设置
+
   const [settings, setSettings] = React.useState({
     emailNotify: true,
     pushNotify: true,
@@ -985,7 +1149,6 @@ const NotificationPanel: React.FC = () => {
 
   const handleSave = () => {
     message.success(t('settings.settingsSaved'));
-    // TODO: 保存到 store
   };
 
   const handleCancel = () => {
@@ -994,20 +1157,19 @@ const NotificationPanel: React.FC = () => {
 
   const handleReset = () => {
     message.success(t('settings.settingsReset'));
-    // TODO: 重置为默认值
   };
 
   return (
     <div className={styles.panel}>
       <Form layout="vertical">
         <Form.Item label={t('settings.emailNotify')}>
-          <Switch 
+          <Switch
             checked={settings.emailNotify}
             onChange={(checked) => setSettings({ ...settings, emailNotify: checked })}
           />
         </Form.Item>
         <Form.Item label={t('settings.pushNotify')}>
-          <Switch 
+          <Switch
             checked={settings.pushNotify}
             onChange={(checked) => setSettings({ ...settings, pushNotify: checked })}
           />
@@ -1021,14 +1183,7 @@ const NotificationPanel: React.FC = () => {
 export default NotificationPanel;
 ```
 
-```less
-// src/pages/Settings/NotificationPanel/index.module.less
-.panel {
-  padding: 24px;
-}
-```
-
-#### 步骤二：创建翻译文件
+#### 步骤二：创建翻译文件（需配置 language 项）
 
 ```json
 // src/pages/Settings/NotificationPanel/locales/zh-cn/zh-cn.json
@@ -1038,67 +1193,37 @@ export default NotificationPanel;
 }
 ```
 
-#### 步骤三：在设置主页中添加菜单项
+#### 步骤四：在设置配置中添加新面板
 
-编辑 `src/pages/Settings/index.tsx`：
+编辑 `src/constants/settings.tsx`：
 
-```tsx
-import React, { useState } from 'react';
-import { Menu } from 'antd';
+```typescript
 import { BellOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import AppearancePanel from './AppearancePanel';
-import LanguagePanel from './LanguagePanel';
-import NotificationPanel from './NotificationPanel'; // 导入
-import styles from './index.module.less';
-import { useAppearanceStore } from '../../store/appearance';
+import NotificationPanel from '@/pages/Settings/NotificationPanel';
 
-const Settings: React.FC = () => {
-  const [activeKey, setActiveKey] = useState('appearance');
-  const themeMode = useAppearanceStore((state) => state.themeMode);
-  const { t } = useTranslation();
-
-  const settingMenus = [
-    { key: 'appearance', icon: <SkinOutlined />, label: t('settings.appearance') },
-    { key: 'language', icon: <GlobalOutlined />, label: t('settings.language') },
-    { key: 'notification', icon: <BellOutlined />, label: t('settings.notification') }, // 新增
-  ];
-
-  const renderPanel = () => {
-    switch (activeKey) {
-      case 'appearance':
-        return <AppearancePanel />;
-      case 'language':
-        return <LanguagePanel />;
-      case 'notification':  // 新增
-        return <NotificationPanel />;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className={styles.container}>
-      <div className={styles.sidebar}>
-        <Menu
-          mode="inline"
-          theme={themeMode ?? 'light'}
-          selectedKeys={[activeKey]}
-          items={settingMenus}
-          onClick={({ key }) => setActiveKey(key)}
-        />
-      </div>
-      <div className={styles.content}>
-        {renderPanel()}
-      </div>
-    </div>
-  );
-};
-
-export default Settings;
+export const SETTINGS_CONFIG: SettingItem[] = [
+  {
+    key: 'appearance',
+    labelKey: 'settings.appearance',
+    icon: <SkinOutlined />,
+    component: AppearancePanel,
+  },
+  {
+    key: 'language',
+    labelKey: 'settings.language',
+    icon: <GlobalOutlined />,
+    component: LanguagePanel,
+  },
+  {
+    key: 'notification',
+    labelKey: 'settings.notification',
+    icon: <BellOutlined />,
+    component: NotificationPanel,
+  },
+];
 ```
 
-#### 步骤四：添加翻译
+#### 步骤五：添加翻译
 
 在公共翻译文件 `src/locales/zh-cn/zh-cn.json` 中添加：
 
@@ -1112,7 +1237,126 @@ export default Settings;
 
 ---
 
-## 十、状态管理
+## 十、弹窗与抽屉组件
+
+### 10.1 组件抽取
+
+页面中的弹窗/抽屉应抽成独立组件，放置在页面的 `components/` 目录下：
+
+```
+src/pages/System/User/
+├── index.tsx
+├── index.module.less
+├── locales/
+└── components/
+    └── UserModal/      # 新建用户弹窗
+        └── index.tsx
+
+src/pages/Product/ProductCategory/
+├── index.tsx
+├── index.module.less
+├── locales/
+└── components/
+    └── CategoryDrawer/ # 新建分类抽屉
+        └── index.tsx
+```
+
+### 10.2 组件规范
+
+- 使用 `destroyOnHidden` 属性确保语言切换时 placeholder 更新
+- Modal 使用 `destroyOnHidden`，Drawer 使用 `destroyOnHidden`
+- 组件通过 props 接收 `open`、`onCancel`、`onOk/onSubmit` 等回调
+
+### 10.3 示例：UserModal 组件
+
+```tsx
+// src/pages/System/User/components/UserModal/index.tsx
+import React, { useCallback } from 'react';
+import { Modal, Form, Input, Select } from 'antd';
+import { useTranslation } from 'react-i18next';
+
+export interface UserModalProps {
+  open: boolean;
+  onCancel: () => void;
+  onOk: (values: { username: string; email: string; role: string }) => void;
+}
+
+const UserModal: React.FC<UserModalProps> = ({ open, onCancel, onOk }) => {
+  const { t } = useTranslation();
+  const [form] = Form.useForm();
+
+  const handleOk = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      onOk(values);
+      form.resetFields();
+    } catch {
+      // 表单验证失败，不做处理
+    }
+  }, [form, onOk]);
+
+  const handleCancel = useCallback(() => {
+    form.resetFields();
+    onCancel();
+  }, [form, onCancel]);
+
+  return (
+    <Modal
+      title={t('user.addUser')}
+      open={open}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      okText={t('common.save')}
+      cancelText={t('common.cancel')}
+      destroyOnHidden
+    >
+      <Form form={form} layout="vertical">
+        <Form.Item
+          name="username"
+          label={t('user.username')}
+          rules={[{ required: true, message: t('user.usernameRequired') }]}
+        >
+          <Input placeholder={t('user.usernamePlaceholder')} />
+        </Form.Item>
+        {/* 其他表单项... */}
+      </Form>
+    </Modal>
+  );
+};
+
+export default UserModal;
+```
+
+### 10.4 页面中使用弹窗组件
+
+```tsx
+// src/pages/System/User/index.tsx
+import UserModal from './components/UserModal';
+
+const User: React.FC = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleOk = useCallback((values) => {
+    // 处理新增逻辑
+    setModalVisible(false);
+  }, []);
+
+  return (
+    <div>
+      {/* 页面内容... */}
+      <UserModal
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={handleOk}
+      />
+    </div>
+  );
+};
+```
+
+---
+
+## 十一、状态管理
 
 ### 10.1 Zustand 简介
 
@@ -1235,7 +1479,44 @@ interface RouteConfig {
 
 ---
 
-## 十二、常见问题
+## 十三、404 页面
+
+### 13.1 404 页面位置
+
+404 页面位于 `src/pages/NotFound/index.tsx`，当用户访问不存在的路径时显示。
+
+### 13.2 路由配置
+
+404 路由使用 catch-all 路由 `{ path: '*' }`，在 `src/routes/index.tsx` 中配置：
+
+```tsx
+import NotFound from '@/pages/NotFound';
+
+// 在路由数组末尾添加
+{ path: '*', component: NotFound, title: '404', labelKey: 'common.notFound', hidden: true }
+```
+
+### 13.3 翻译配置
+
+在翻译文件中添加 404 相关文案：
+
+```json
+// src/locales/zh-cn/zh-cn.json
+{
+  "common.notFound": "抱歉，您访问的页面不存在",
+  "common.backToHome": "返回首页"
+}
+
+// src/locales/en-us/en-us.json
+{
+  "common.notFound": "Sorry, the page you visited does not exist",
+  "common.backToHome": "Back to Home"
+}
+```
+
+---
+
+## 十四、常见问题
 
 ### 12.1 修改后页面没有变化
 

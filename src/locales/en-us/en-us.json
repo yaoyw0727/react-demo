@@ -30,6 +30,7 @@
   "common.increment": "Increment",
   "common.decrement": "Decrement",
   "common.backToHome": "Back to Home",
+  "common.notFound": "Sorry, the page you visited does not exist",
   "settings.title": "Settings",
   "settings.appearance": "Appearance",
   "settings.language": "Language",
@@ -43,5 +44,6 @@
   "settings.systemLanguage": "System Language",
   "settings.settingsSaved": "Settings saved",
   "settings.settingsCanceled": "Canceled",
-  "settings.settingsReset": "Reset to default"
+  "settings.settingsReset": "Reset to default",
+  "settings.noSettings": "No settings available"
 }
