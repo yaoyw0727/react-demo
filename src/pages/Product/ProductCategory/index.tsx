@@ -1,8 +1,9 @@
-import React from 'react';
-import { Table, Button, Input, Typography, Pagination } from 'antd';
+import React, { useState, useCallback } from 'react';
+import { Table, Button, Input, Typography, Pagination, App } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useTableScrollY } from '@/layouts/hooks/useTableScrollY';
+import CategoryDrawer from './components/CategoryDrawer';
 import styles from './index.module.less';
 
 const { Title } = Typography;
@@ -13,8 +14,19 @@ const { Title } = Typography;
  */
 const ProductCategory: React.FC = () => {
   const { t } = useTranslation();
+  const { message } = App.useApp();
   const { containerRef, scrollY } = useTableScrollY({ offset: 76 });
-  
+  const [data, setData] = useState(() =>
+    Array.from({ length: 30 }, (_, i) => ({
+      key: String(i + 1),
+      name: `${t('product.product')} ${i + 1}`,
+      description: `${t('product.categoryDescriptionPrefix')} ${i + 1}`,
+      productCount: Math.floor(Math.random() * 100),
+      sort: i + 1,
+    }))
+  );
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
   const columns = [
     {
       title: t('product.categoryName'),
@@ -38,14 +50,25 @@ const ProductCategory: React.FC = () => {
     },
   ];
 
-  // 模拟分类数据
-  const data = Array.from({ length: 30 }, (_, i) => ({
-    key: String(i + 1),
-    name: `${t('product.product')} ${i + 1}`,
-    description: `${t('product.categoryDescriptionPrefix')} ${i + 1}`,
-    productCount: Math.floor(Math.random() * 100),
-    sort: i + 1,
-  }));
+  const handleAdd = useCallback(() => {
+    setDrawerVisible(true);
+  }, []);
+
+  const handleSubmit = useCallback(
+    (values: { name: string; description?: string; sort?: number }) => {
+      const newCategory = {
+        key: String(data.length + 1),
+        name: values.name,
+        description: values.description || '',
+        productCount: 0,
+        sort: values.sort || data.length + 1,
+      };
+      setData((prev) => [newCategory, ...prev]);
+      message.success(t('common.success'));
+      setDrawerVisible(false);
+    },
+    [data.length, message, t]
+  );
 
   return (
     <div className={styles.container}>
@@ -56,25 +79,31 @@ const ProductCategory: React.FC = () => {
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
           {t('product.addCategory')}
         </Button>
       </div>
       <div className={styles.tableContainer} ref={containerRef}>
-        <Table 
-          columns={columns} 
-          dataSource={data} 
+        <Table
+          columns={columns}
+          dataSource={data}
           pagination={false}
           scroll={{ y: scrollY }}
         />
       </div>
       <div className={styles.pagination}>
         <Pagination
-          total={30}
+          total={data.length}
           showSizeChanger={false}
           showQuickJumper={false}
         />
       </div>
+
+      <CategoryDrawer
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };

@@ -1,8 +1,9 @@
-import React from 'react';
-import { Table, Typography, Button, Space, Input, Pagination } from 'antd';
+import React, { useState, useCallback } from 'react';
+import { Table, Typography, Button, Space, Input, Pagination, App } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useTableScrollY } from '@/layouts/hooks/useTableScrollY';
+import UserModal from './components/UserModal';
 import styles from './index.module.less';
 
 const { Title } = Typography;
@@ -13,7 +14,18 @@ const { Title } = Typography;
  */
 const User: React.FC = () => {
   const { t } = useTranslation();
+  const { message } = App.useApp();
   const { containerRef, scrollY } = useTableScrollY({ offset: 60 });
+  const [data, setData] = useState(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      key: String(i + 1),
+      username: `user${i + 1}`,
+      email: `user${i + 1}@example.com`,
+      role: i === 0 ? t('common.admin') : t('user.normalUser'),
+      status: i % 5 === 0 ? t('user.statusDisabled') : t('user.statusEnabled'),
+    }))
+  );
+  const [modalVisible, setModalVisible] = useState(false);
 
   const columns = [
     {
@@ -48,14 +60,22 @@ const User: React.FC = () => {
     },
   ];
 
-  // 模拟用户数据
-  const data = Array.from({ length: 20 }, (_, i) => ({
-    key: String(i + 1),
-    username: `user${i + 1}`,
-    email: `user${i + 1}@example.com`,
-    role: i === 0 ? t('common.admin') : t('user.normalUser'),
-    status: i % 5 === 0 ? t('user.statusDisabled') : t('user.statusEnabled'),
-  }));
+  const handleAdd = useCallback(() => {
+    setModalVisible(true);
+  }, []);
+
+  const handleOk = useCallback((values: { username: string; email: string; role: string }) => {
+    const newUser = {
+      key: String(data.length + 1),
+      username: values.username,
+      email: values.email,
+      role: values.role,
+      status: t('user.statusEnabled'),
+    };
+    setData((prev) => [newUser, ...prev]);
+    message.success(t('common.success'));
+    setModalVisible(false);
+  }, [data.length, message, t]);
 
   return (
     <div className={styles.container}>
@@ -66,7 +86,7 @@ const User: React.FC = () => {
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
           {t('user.addUser')}
         </Button>
       </div>
@@ -79,8 +99,14 @@ const User: React.FC = () => {
         />
       </div>
       <div className={styles.pagination}>
-        <Pagination total={20} showSizeChanger={false} showQuickJumper={false} />
+        <Pagination total={data.length} showSizeChanger={false} showQuickJumper={false} />
       </div>
+
+      <UserModal
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={handleOk}
+      />
     </div>
   );
 };

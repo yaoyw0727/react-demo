@@ -16,5 +16,12 @@
   "user.searchPlaceholder": "Search username",
   "user.normalUser": "Normal User",
   "user.statusEnabled": "Enabled",
-  "user.statusDisabled": "Disabled"
+  "user.statusDisabled": "Disabled",
+  "user.usernamePlaceholder": "Enter username",
+  "user.emailPlaceholder": "Enter email",
+  "user.rolePlaceholder": "Select role",
+  "user.usernameRequired": "Please enter username",
+  "user.emailRequired": "Please enter email",
+  "user.emailInvalid": "Please enter a valid email",
+  "user.roleRequired": "Please select role"
 }

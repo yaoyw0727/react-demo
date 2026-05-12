@@ -7,5 +7,8 @@
   "product.categoryDescriptionPrefix": "分类",
   "product.categoryTitle": "产品分类",
   "product.categorySearchPlaceholder": "搜索分类",
-  "product.addCategory": "新增分类"
+  "product.addCategory": "新增分类",
+  "product.categoryNamePlaceholder": "请输入分类名称",
+  "product.categoryDescriptionPlaceholder": "请输入分类描述",
+  "product.categoryNameRequired": "请输入分类名称"
 }

@@ -16,5 +16,12 @@
   "user.searchPlaceholder": "搜索用户名",
   "user.normalUser": "普通用户",
   "user.statusEnabled": "启用",
-  "user.statusDisabled": "禁用"
+  "user.statusDisabled": "禁用",
+  "user.usernamePlaceholder": "请输入用户名",
+  "user.emailPlaceholder": "请输入邮箱",
+  "user.rolePlaceholder": "请选择角色",
+  "user.usernameRequired": "请输入用户名",
+  "user.emailRequired": "请输入邮箱",
+  "user.emailInvalid": "请输入有效的邮箱地址",
+  "user.roleRequired": "请选择角色"
 }
