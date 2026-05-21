@@ -4,6 +4,7 @@
   "menu.system": "系统管理",
   "menu.systemUser": "用户管理",
   "menu.systemRole": "角色管理",
+  "menu.systemOverview": "系统概览",
   "menu.product": "产品管理",
   "menu.productList": "产品列表",
   "menu.productCategory": "产品分类",
@@ -45,5 +46,14 @@
   "settings.settingsSaved": "设置已保存",
   "settings.settingsCanceled": "已取消",
   "settings.settingsReset": "已恢复默认设置",
-  "settings.noSettings": "暂无可用设置"
+  "settings.noSettings": "暂无可用设置",
+  "prototype.systemOverview": "原型-系统概览",
+  "overview.onlineUsers": "在线用户",
+  "overview.todayVisits": "今日访问",
+  "overview.totalOrders": "订单总数",
+  "overview.totalRevenue": "营收总额",
+  "export.title": "导出数据",
+  "export.excel": "导出为 Excel",
+  "export.csv": "导出为 CSV",
+  "export.pdf": "导出为 PDF"
 }

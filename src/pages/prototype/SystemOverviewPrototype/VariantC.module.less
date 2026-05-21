@@ -1,0 +1,88 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    padding-bottom: 16px;
+  }
+
+  .scrollable {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  .mainCard {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .tabContent {
+    padding: 8px 0;
+  }
+
+  .statGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .statCard {
+      text-align: center;
+      border-radius: 8px;
+
+      .statIcon { font-size: 32px; margin-bottom: 8px; }
+      .statTitle { font-size: 13px; color: #666; margin-bottom: 8px; }
+      .statValue { font-size: 26px; font-weight: 600; color: #13c2c2; }
+    }
+  }
+
+  .quickActions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .trendHeader {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .chartGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
+    .chartCard {
+      border-radius: 8px;
+    }
+  }
+
+  .gaugeGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+
+    .gaugeCard {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-radius: 12px;
+      min-height: 380px;
+    }
+  }
+}

@@ -11,6 +11,8 @@ import ProductList from '@/pages/Product/ProductList';
 import ProductCategory from '@/pages/Product/ProductCategory';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
+import SystemOverviewPrototype from '@/pages/prototype/SystemOverviewPrototype';
+import SystemOverviewWithExport from '@/pages/SystemOverviewWithExport';
 import { SETTINGS_CONFIG } from '@/constants/settings';
 import type { RouteConfig } from './tools';
 export type { RouteConfig };
@@ -30,6 +32,7 @@ export const routes: RouteConfig[] = [
     children: [
       { path: '/system/user', component: User, title: '用户管理', labelKey: 'menu.systemUser' },
       { path: '/system/role', component: Role, title: '角色管理', labelKey: 'menu.systemRole' },
+      { path: '/system/overview', component: SystemOverviewWithExport, title: '系统概览', labelKey: 'menu.systemOverview' },
     ],
   },
   {
@@ -45,5 +48,6 @@ export const routes: RouteConfig[] = [
   ...(SETTINGS_CONFIG.length > 0
     ? [{ path: '/settings', component: Settings, title: '设置', labelKey: 'menu.settings', icon: <SettingOutlined />, hidden: true }]
     : []),
+  { path: '/prototype/system-overview', component: SystemOverviewPrototype, title: '原型-系统概览', labelKey: 'prototype.systemOverview', hidden: true },
   { path: '*', component: NotFound, title: '404', labelKey: 'common.notFound', hidden: true },
 ];

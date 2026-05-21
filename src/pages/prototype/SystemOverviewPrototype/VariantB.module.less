@@ -1,0 +1,134 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    padding-bottom: 16px;
+  }
+
+  .scrollable {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  .mainLayout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    min-height: 700px;
+
+    .leftPanel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .chartSection {
+        background: #fff;
+        border-radius: 8px;
+        padding: 16px 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+        .chartHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+      }
+
+      .chartRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        .chartHalf {
+          background: #fff;
+          border-radius: 8px;
+          padding: 16px 20px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+      }
+    }
+
+    .rightPanel {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+
+      .statStack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .statRow {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: #f5f5f5;
+          border-radius: 6px;
+          transition: background 0.2s;
+          cursor: pointer;
+
+          &:hover { background: #e8e8e8; }
+
+          .statLeft {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            .statIcon { font-size: 22px; }
+            .statTitle { font-size: 14px; color: #555; }
+          }
+
+          .statRight {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            .statValue { font-size: 20px; font-weight: 600; color: #722ed1; }
+          }
+        }
+      }
+
+      .gaugeStack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .gaugeRow {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .gaugeInfo {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+        }
+      }
+
+      .actionStack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  }
+}

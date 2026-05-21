@@ -22,16 +22,7 @@ const Settings: React.FC = () => {
 
   const ActivePanel = SETTINGS_CONFIG.find((item) => item.key === activeKey)?.component;
 
-  if (SETTINGS_CONFIG.length === 0) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div style={{ textAlign: 'center', color: '#999' }}>{t('settings.noSettings')}</div>
-        </div>
-      </div>
-    );
-  }
-
+  // 只有一个配置项时，直接显示页面，不显示左侧菜单
   if (SETTINGS_CONFIG.length === 1) {
     return (
       <div className={styles.container}>
@@ -43,6 +34,7 @@ const Settings: React.FC = () => {
   }
 
   return (
+    // 多余一个配置项时，显示左侧菜单可以切换配置页
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <Menu
