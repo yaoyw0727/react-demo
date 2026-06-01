@@ -1,44 +1,47 @@
 /**
- * PROTOTYPE — 弹窗拖动 Hook
- * 鼠标按住标题栏拖动窗口，边界限制，位置持久化
+ * AI 助手 — 弹窗拖动 Hook
  */
 import { useRef, useCallback, useEffect } from 'react';
 
-export function useDraggable(defaultX: number, defaultY: number, onChange: (pos: { x: number; y: number }) => void) {
+export function useDraggable(
+  defaultX: number,
+  defaultY: number,
+  onChange: (pos: { x: number; y: number }) => void,
+) {
   const dragging = useRef(false);
-  const startPos = useRef({ x: 0, y: 0 });
+  const start = useRef({ x: 0, y: 0 });
   const offset = useRef({ x: defaultX, y: defaultY });
   const posRef = useRef({ x: defaultX, y: defaultY });
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     dragging.current = true;
-    startPos.current = { x: e.clientX, y: e.clientY };
+    start.current = { x: e.clientX, y: e.clientY };
     offset.current = { ...posRef.current };
     document.body.style.cursor = 'grabbing';
     document.body.style.userSelect = 'none';
   }, []);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const onMove = (e: MouseEvent) => {
       if (!dragging.current) return;
-      const dx = e.clientX - startPos.current.x;
-      const dy = e.clientY - startPos.current.y;
+      const dx = e.clientX - start.current.x;
+      const dy = e.clientY - start.current.y;
       const newX = Math.max(0, Math.min(offset.current.x + dx, window.innerWidth - 100));
       const newY = Math.max(0, Math.min(offset.current.y + dy, window.innerHeight - 60));
       posRef.current = { x: newX, y: newY };
       onChange(posRef.current);
     };
-    const handleMouseUp = () => {
+    const onUp = () => {
       if (!dragging.current) return;
       dragging.current = false;
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
     };
   }, [onChange]);
 

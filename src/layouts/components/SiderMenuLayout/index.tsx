@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Layout, Menu, Breadcrumb } from 'antd';
 import { useAppearanceStore } from '../../../store/appearance';
 import UserDropdown from '../../../components/UserDropdown';
+import AIAssistant from '../../../components/AIAssistant';
 import { useMenu } from '../../hooks/useMenu';
 import { FOOTER_TEXT, APP_NAME, APP_NAME_SHORT } from '../../../constants';
 import styles from './index.module.less';
@@ -56,6 +57,7 @@ const SiderMenuLayout: React.FC<SiderMenuLayoutProps> = ({ children }) => {
       <Layout className={styles.mainLayout}>
         <Header className={styles.sideHeader}>
           <div />
+          <AIAssistant />
           <UserDropdown />
         </Header>
         <div className={styles.contentWrapper}>

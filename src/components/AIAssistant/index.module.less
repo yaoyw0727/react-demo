@@ -1,0 +1,29 @@
+/* AI 助手 — 入口图标 + 弹窗容器 */
+.entryBtn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: #999; font-size: 18px; transition: all .2s; }
+.entryBtn:hover { background: #f0f0f0; color: #1890ff; }
+
+/* Chat window container */
+.chatWindow { position: fixed; width: 480px; height: 600px; min-width: 480px; min-height: 600px; background: #fff; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,.15); display: flex; flex-direction: column; z-index: 1000; overflow: hidden; }
+.fullscreen { position: fixed; inset: 0; width: 100% !important; height: 100% !important; min-width: unset; min-height: unset; border-radius: 0; }
+.fullscreen .resizeTop, .fullscreen .resizeBottom, .fullscreen .resizeLeft, .fullscreen .resizeRight, .fullscreen .resizeCorner { display: none; }
+
+/* Resize handles */
+.resizeTop { position: absolute; top: 0; left: 4px; right: 4px; height: 4px; cursor: ns-resize; z-index: 10; }
+.resizeTop:hover, .resizeTop.resizeActive { background: #1890ff; height: 3px; }
+.resizeBottom { position: absolute; bottom: 0; left: 4px; right: 4px; height: 4px; cursor: ns-resize; z-index: 10; }
+.resizeBottom:hover, .resizeBottom.resizeActive { background: #1890ff; height: 3px; }
+.resizeLeft { position: absolute; left: 0; top: 4px; bottom: 4px; width: 4px; cursor: ew-resize; z-index: 10; }
+.resizeLeft:hover, .resizeLeft.resizeActive { background: #1890ff; width: 3px; }
+.resizeRight { position: absolute; right: 0; top: 4px; bottom: 4px; width: 4px; cursor: ew-resize; z-index: 10; }
+.resizeRight:hover, .resizeRight.resizeActive { background: #1890ff; width: 3px; }
+.resizeCorner { position: absolute; width: 8px; height: 8px; z-index: 11; }
+.resizeCorner:hover, .resizeCorner.resizeActive { background: #1890ff; border-radius: 2px; }
+
+/* Title bar */
+.titleBar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fafafa; border-bottom: 1px solid #f0f0f0; cursor: grab; user-select: none; flex-shrink: 0; }
+.titleBar:active { cursor: grabbing; }
+.titleLeft { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+.robotIcon { color: #1890ff; font-size: 20px; }
+.titleRight { display: flex; gap: 4px; }
+.toolBtn { width: 32px; height: 32px; border: none; background: transparent; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; transition: all .2s; }
+.toolBtn:hover { background: #e8e8e8; color: #333; }

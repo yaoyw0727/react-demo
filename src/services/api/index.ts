@@ -5,3 +5,4 @@ export { productApi } from './product';
 export { categoryApi } from './category';
 export { overviewApi } from './overview';
 export { settingsApi } from './settings';
+export { aiApi, sendMessage } from './ai';

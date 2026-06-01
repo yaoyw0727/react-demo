@@ -6,6 +6,7 @@ import React from 'react';
 import { Layout, Menu, Breadcrumb } from 'antd';
 import { useAppearanceStore } from '../../../store/appearance';
 import UserDropdown from '../../../components/UserDropdown';
+import AIAssistant from '../../../components/AIAssistant';
 import { useMenu } from '../../hooks/useMenu';
 import { FOOTER_TEXT, APP_NAME } from '../../../constants';
 import styles from './index.module.less';
@@ -35,7 +36,8 @@ const TopMenuLayout: React.FC<TopMenuLayoutProps> = ({ children }) => {
           className={styles.menu}
           onClick={handleMenuClick}
         />
-        <UserDropdown />
+          <AIAssistant />
+          <UserDropdown />
       </Header>
       {/* 内容区域 */}
       <div className={styles.contentWrapper}>

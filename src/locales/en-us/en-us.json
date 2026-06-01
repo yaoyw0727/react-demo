@@ -88,5 +88,18 @@
   "chartDetail.region": "Region",
   "chartDetail.value": "Value",
   "chartDetail.percentage": "Percentage",
-  "chartDetail.detailData": "Detail Data"
+  "chartDetail.detailData": "Detail Data",
+  "aiAssistant.title": "AI Assistant",
+  "aiAssistant.newChat": "New Chat",
+  "aiAssistant.pin": "Pin",
+  "aiAssistant.unpin": "Unpin",
+  "aiAssistant.delete": "Delete",
+  "aiAssistant.copy": "Copy",
+  "aiAssistant.edit": "Edit",
+  "aiAssistant.regenerate": "Regenerate",
+  "aiAssistant.stop": "Stop",
+  "aiAssistant.emptyTitle": "AI Assistant Ready",
+  "aiAssistant.emptyDesc": "How can I help you?",
+  "aiAssistant.placeholder": "Type a message, Enter to send",
+  "aiAssistant.attach": "Attach"
 }
