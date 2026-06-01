@@ -253,7 +253,7 @@ User
 const handleOk = useCallback((values) => {
   const newUser = { ...values, key: String(data.length + 1), status: '启用' };
   setData((prev) => [newUser, ...prev]);
-  message.success('成功');
+  message.success(t('common.success'));
   setModalVisible(false);
 }, [data.length, message]);
 ```

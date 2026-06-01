@@ -14,5 +14,9 @@
   "role.guestDescription": "Guest user with view only permission",
   "role.permissionView": "View",
   "role.statusEnabled": "Enabled",
-  "role.statusDisabled": "Disabled"
+  "role.statusDisabled": "Disabled",
+  "role.nameRequired": "Please enter role name",
+  "role.namePlaceholder": "Enter role name",
+  "role.descriptionPlaceholder": "Enter role description",
+  "role.permissionsPlaceholder": "Select permissions"
 }

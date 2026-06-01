@@ -59,7 +59,7 @@ const CategoryDrawer: React.FC<CategoryDrawerProps> = ({ open, onClose, onSubmit
           name="sort"
           label={t('product.sort')}
         >
-          <InputNumber min={1} style={{ width: '100%' }} />
+          <InputNumber min={1} placeholder={t('product.sortPlaceholder')} style={{ width: '100%' }} />
         </Form.Item>
       </Form>
     </Drawer>

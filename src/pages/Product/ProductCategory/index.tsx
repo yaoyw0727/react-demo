@@ -1,31 +1,63 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Button, Input, Typography, Pagination, App } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useTableScrollY } from '@/layouts/hooks/useTableScrollY';
+import { categoryApi, type CategoryItem } from '@/services/api/category';
 import CategoryDrawer from './components/CategoryDrawer';
 import styles from './index.module.less';
 
 const { Title } = Typography;
 
-/**
- * 产品分类页面
- * 展示产品分类列表，支持排序
- */
 const ProductCategory: React.FC = () => {
   const { t } = useTranslation();
   const { message } = App.useApp();
   const { containerRef, scrollY } = useTableScrollY({ offset: 76 });
-  const [data, setData] = useState(() =>
-    Array.from({ length: 30 }, (_, i) => ({
-      key: String(i + 1),
-      name: `${t('product.product')} ${i + 1}`,
-      description: `${t('product.categoryDescriptionPrefix')} ${i + 1}`,
-      productCount: Math.floor(Math.random() * 100),
-      sort: i + 1,
-    }))
-  );
+  const [data, setData] = useState<CategoryItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await categoryApi.list({ search: search || undefined, page, limit: pageSize });
+      setData(result.data);
+      setTotal(result.total);
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  }, [search, page, pageSize, message, t]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleAdd = useCallback(() => {
+    setDrawerVisible(true);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (values: { name: string; description?: string; sort?: number }) => {
+      try {
+        await categoryApi.create(values);
+        message.success(t('common.success'));
+        setDrawerVisible(false);
+        fetchData();
+      } catch (err) {
+      message.error(err instanceof Error ? err.message : t('common.error'));
+    }
+  },
+  [message, t, fetchData]
+  );
 
   const columns = [
     {
@@ -50,34 +82,16 @@ const ProductCategory: React.FC = () => {
     },
   ];
 
-  const handleAdd = useCallback(() => {
-    setDrawerVisible(true);
-  }, []);
-
-  const handleSubmit = useCallback(
-    (values: { name: string; description?: string; sort?: number }) => {
-      const newCategory = {
-        key: String(data.length + 1),
-        name: values.name,
-        description: values.description || '',
-        productCount: 0,
-        sort: values.sort || data.length + 1,
-      };
-      setData((prev) => [newCategory, ...prev]);
-      message.success(t('common.success'));
-      setDrawerVisible(false);
-    },
-    [data.length, message, t]
-  );
-
   return (
     <div className={styles.container}>
       <Title level={3} className={styles.title}>{t('product.categoryTitle')}</Title>
       <div className={styles.toolbar}>
-        <Input
+        <Input.Search
           placeholder={t('product.categorySearchPlaceholder')}
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
+          onSearch={handleSearch}
+          allowClear
         />
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
           {t('product.addCategory')}
@@ -85,17 +99,22 @@ const ProductCategory: React.FC = () => {
       </div>
       <div className={styles.tableContainer} ref={containerRef}>
         <Table
+          rowKey="id"
           columns={columns}
           dataSource={data}
           pagination={false}
           scroll={{ y: scrollY }}
+          loading={loading}
         />
       </div>
       <div className={styles.pagination}>
         <Pagination
-          total={data.length}
+          current={page}
+          total={total}
+          pageSize={pageSize}
           showSizeChanger={false}
           showQuickJumper={false}
+          onChange={setPage}
         />
       </div>
 

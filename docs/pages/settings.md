@@ -143,7 +143,7 @@ const isEnglish = i18nInstance.language.startsWith('en');
 const handleSave = () => {
   setLanguage(selectedLang);        // 更新 store
   i18n.changeLanguage(selectedLang); // 切换 i18n 语言
-  message.success('设置已保存');
+  message.success(t('common.success'));
 };
 ```
 

@@ -6,6 +6,7 @@ import { Form, Card, App } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useLanguageStore, languages } from '../../../store/language';
 import type { Language } from '../../../store/language';
+import { syncSettingsToBackend } from '@/services/settingsSync';
 import ActionsBar from '../components/ActionsBar';
 import styles from './index.module.less';
 import i18n from '@/utils/i18n';
@@ -25,10 +26,11 @@ const LanguagePanel: React.FC = () => {
   const [selectedLang, setSelectedLang] = useState<Language>(language);
   const isEnglish = i18nInstance.language.startsWith('en');
 
-  // 保存语言设置
+  // 保存语言设置并同步到后端
   const handleSave = () => {
     setLanguage(selectedLang);
     i18n.changeLanguage(selectedLang);
+    syncSettingsToBackend();
     message.success(t('settings.settingsSaved'));
   };
 

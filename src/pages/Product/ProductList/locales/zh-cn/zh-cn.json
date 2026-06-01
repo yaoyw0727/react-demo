@@ -22,5 +22,14 @@
   "product.statusOutOfStock": "缺货",
   "product.product": "产品",
   "product.stock": "库存",
-  "product.action": "操作"
+  "product.action": "操作",
+  "product.nameRequired": "请输入产品名称",
+  "product.namePlaceholder": "请输入产品名称",
+  "product.categoryRequired": "请选择产品分类",
+  "product.categoryPlaceholder": "请选择产品分类",
+  "product.priceRequired": "请输入价格",
+  "product.stockRequired": "请输入库存",
+  "product.pricePlaceholder": "请输入价格",
+  "product.stockPlaceholder": "请输入库存",
+  "product.statusPlaceholder": "请选择状态"
 }

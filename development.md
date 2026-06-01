@@ -30,21 +30,26 @@
 | 技术 | 版本 | 说明 |
 |------|------|------|
 | React | 19 | UI 框架 |
-| TypeScript | - | 类型系统 |
+| TypeScript | 5.9 | 类型系统 |
 | Vite | 8 | 构建工具 |
 | Ant Design | 6 | UI 组件库 |
 | Zustand | 5 | 状态管理 |
-| react-router-dom | - | 路由管理 |
-| i18next | - | 国际化 |
-| less | - | 样式预处理 |
+| React Router | 7 | 路由管理 |
+| i18next | 26 | 国际化 |
+| ECharts | 6 | 图表库 |
+| Axios | 1 | HTTP 客户端 |
+| Less | 4 | 样式预处理 |
 
 ### 1.2 核心特性
 
+- **JWT 认证**：登录获取 Token，Axios 拦截器自动携带，401 自动跳转登录
 - **主题切换**：支持浅色/深色主题切换（需配置 appearance 项）
 - **多语言支持**：支持简体中文、英文（需配置 language 项）
 - **布局模式**：支持顶部菜单和侧边栏菜单两种布局（需配置 appearance 项）
 - **响应式设计**：适配不同屏幕尺寸
 - **设置可配置**：通过 `SETTINGS_CONFIG` 配置显示哪些设置项
+- **后端集成**：所有业务页面已对接后端 API（Spring Boot + MySQL + Redis）
+- **数据导出**：支持 Excel/CSV/PDF 三种格式导出
 
 ### 1.3 关键命令
 
@@ -108,11 +113,14 @@ src/
 │       └── antd-override.less   # antd 样式覆盖
 │
 ├── components/                  # 全局可复用组件（整个项目都能用）
-│   ├── ThemeConfig/            # 主题配置（重要，理解主题原理）
-│   │   ├── index.tsx           # 主题配置组件
-│   │   └── tools.ts            # 主题相关工具函数
-│   ├── IconFont/               # 图标字体组件
-│   └── CustomButton/           # 自定义按钮组件
+│   ├── UserDropdown/           # 用户下拉菜单
+│   │   ├── index.tsx
+│   │   └── index.module.less
+│   └── ChartDetailModal/       # 图表详情弹窗
+│       └── index.tsx
+│
+├── hooks/                       # 全局自定义 Hook
+│   └── useExport.ts            # 导出功能 Hook（Excel/CSV/PDF）
 │
 ├── layouts/                     # 布局组件（页面的整体框架）
 │   ├── MainLayout/             # 主布局入口
@@ -131,6 +139,9 @@ src/
 │       └── useTableScrollY.ts  # 表格滚动高度计算
 │
 ├── pages/                       # 页面组件（每个页面一个目录）
+│   ├── Login/                  # 登录页（无 layout，全屏居中）
+│   │   ├── index.tsx
+│   │   └── index.module.less
 │   ├── Home/                   # 首页
 │   │   ├── index.tsx           # 页面主组件
 │   │   ├── index.module.less   # 样式文件
@@ -155,27 +166,49 @@ src/
 │   ├── Product/                # 产品模块（父目录仅组织子页面）
 │   │   ├── ProductList/        # 产品列表
 │   │   └── ProductCategory/    # 产品分类
-│   └── System/                 # 系统模块
-│       ├── User/               # 用户管理
-│       └── Role/               # 角色管理
+│   ├── System/                 # 系统模块
+│   │   ├── User/               # 用户管理
+│   │   └── Role/               # 角色管理
+│   ├── SystemOverviewWithExport/ # 系统概览（含导出功能）
+│   │   └── index.tsx
+│   └── prototype/              # 原型页面
+│       ├── PrototypeSwitcher.tsx
+│       ├── SystemOverviewPrototype/ # 3 种概览页面变体
+│       └── AIAssistantPrototype/    # 3 种 AI 助手变体
 │
 ├── routes/                      # 路由配置
 │   ├── index.tsx               # 路由定义（主要配置在这里）
 │   └── tools.tsx               # 路由工具函数
 │
 ├── store/                       # Zustand 状态管理
+│   ├── auth.ts                  # 认证状态（Token、用户信息）
 │   ├── appearance.ts           # 外观状态（主题、布局）
 │   ├── language.ts             # 语言状态
 │   └── counter.ts              # 示例状态
 │
+├── services/                    # HTTP 请求层
+│   ├── request.ts              # Axios 实例（JWT 拦截器、401 处理）
+│   ├── settingsSync.ts         # 设置前后端同步
+│   └── api/                    # API 接口封装
+│       ├── index.ts            # 统一导出
+│       ├── auth.ts             # 认证 API
+│       ├── overview.ts         # 概览 API
+│       ├── user.ts             # 用户 API
+│       ├── role.ts             # 角色 API
+│       ├── product.ts          # 产品 API
+│       ├── category.ts         # 分类 API
+│       └── settings.ts         # 设置 API
+│
+├── hooks/                       # 自定义 Hook
+│   └── useExport.ts            # 导出功能 Hook
+│
 ├── utils/                       # 工具函数
-│   └── i18n.ts                 # 国际化初始化配置
+│   ├── i18n.ts                 # 国际化初始化配置
+│   ├── exporters.ts            # 导出工具函数（Excel/CSV/PDF）
+│   └── __tests__/              # 工具函数测试
+│       └── exporters.test.ts
 │
-├── constants/                  # 常量定义
-│   ├── index.ts                # 项目常量（主题色、布局模式等）
-│   └── settings.tsx            # 设置配置项
-│
-├── locales/                    # 公共翻译文件（所有页面都能用）
+├── locales/                     # 公共翻译文件（所有页面都能用）
 │   ├── zh-cn/zh-cn.json
 │   └── en-us/en-us.json
 │
@@ -316,7 +349,7 @@ export default MyComponent;
 ```tsx
 // ❌ 错误
 import { message } from 'antd';
-message.success('成功');
+message.success(t('common.success'));
 ```
 
 **必须**使用 `App.useApp()` 获取：
@@ -325,7 +358,8 @@ message.success('成功');
 // ✅ 正确
 const MyComponent: React.FC = () => {
   const { message } = App.useApp();
-  message.success('成功');
+  const { t } = useTranslation();
+  message.success(t('common.success'));
   // ...
 };
 ```
@@ -364,6 +398,93 @@ const handleClick = (e: any) => { ... };
     display: none; /* Chrome/Safari/Opera */
   }
 }
+```
+
+### 4.6 API 服务层规范
+
+API 接口封装在 `src/services/api/` 目录下，按业务模块拆分：
+
+```typescript
+// src/services/api/myEntity.ts
+import { get, post, put, del, patch } from '@/services/request';
+
+export interface MyEntity {
+  id: string;
+  name: string;
+}
+
+export interface PageResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const myApi = {
+  list: (params?: { search?: string; page?: number; limit?: number }) =>
+    get<PageResult<MyEntity>>('/my-entities', params as Record<string, unknown>),
+
+  getById: (id: string) => get<MyEntity>(`/my-entities/${id}`),
+
+  create: (data: Partial<MyEntity>) => post<MyEntity>('/my-entities', data),
+
+  update: (id: string, data: Partial<MyEntity>) => put<MyEntity>(`/my-entities/${id}`, data),
+
+  delete: (id: string) => del(`/my-entities/${id}`),
+};
+```
+
+**原则**：
+- 每个 API 文件使用独立接口定义响应类型
+- 在 `src/services/api/index.ts` 中统一导出
+- 页面中通过 `import { myApi } from '@/services/api'` 使用
+- 请求路径不要拼写 `/api` 前缀（Vite proxy 或 Axios baseURL 已处理）
+
+### 4.7 认证与权限
+
+登录流程：
+1. 用户在 `/login` 页输入用户名密码
+2. 调用 `POST /api/auth/login` 获取 `{ token, user: { id, username, email, roleId, roleName, status } }`
+3. 使用 `useAuthStore.setAuth(token, user)` 存储到 Zustand（自动持久化到 localStorage）
+4. `ProtectedRoute` 组件检查 token 是否存在，不存在则重定向到 `/login`
+5. Axios 请求拦截器自动携带 `Authorization: Bearer <token>` 头
+6. 401 响应触发自动清除认证状态并跳转登录页
+
+```tsx
+// 获取认证状态
+import { useAuthStore } from '@/store/auth';
+
+const token = useAuthStore((s) => s.token);
+const user = useAuthStore((s) => s.user);
+```
+
+### 4.8 数据导出
+
+系统支持三种数据导出格式：
+
+| 格式 | 工具 | 导出方式 |
+|------|------|---------|
+| Excel | xlsx (SheetJS) | 前端生成 Blob 下载，也可调用后端 `/api/overview/export` |
+| CSV | 手写 CSV 拼接 | 前端生成字符串 Blob 下载 |
+| PDF | html2canvas + jsPDF | 前端渲染 HTML 表格 → 截图 → PDF |
+
+使用 `useExport` Hook 快速集成：
+
+```tsx
+import { useExport } from '@/hooks/useExport';
+import type { ExportData, ExportFormat } from '@/utils/exporters';
+
+const exportData: ExportData = {
+  stats: [{ label: '在线用户', value: 100 }],
+  charts: {
+    visitTrend: [{ label: '周一', value: 200 }],
+    orderRatio: [{ label: '电子产品', value: 50 }],
+    region: [{ label: '广东', value: 100 }],
+  },
+};
+
+const { exporting, handleExport } = useExport({ data: exportData });
+// handleExport('excel') | handleExport('csv') | handleExport('pdf')
 ```
 
 ---

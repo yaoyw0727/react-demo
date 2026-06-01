@@ -1,22 +1,27 @@
-/**
- * 系统概览页面 - 基于 Prototype Variant A 集成导出功能
- */
-import React, { useState, useMemo } from 'react';
-import { Typography, Segmented, Button, Space, Tag, Dropdown } from 'antd';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Typography, Segmented, Button, Space, Tag, Dropdown, App } from 'antd';
 import { DownOutlined, CloudServerOutlined, FileTextOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
-import { statCardsData, visitTrendData, orderRatioData, regionData, healthData } from '@/pages/prototype/SystemOverviewPrototype/mockData';
+import { overviewApi } from '@/services/api/overview';
 import { useExport } from '@/hooks/useExport';
 import ChartDetailModal from '@/components/ChartDetailModal';
 import type { ExportData, ExportFormat } from '@/utils/exporters';
 import styles from '@/pages/prototype/SystemOverviewPrototype/VariantA.module.less';
 
 const { Title } = Typography;
-
-const timeRangeLabels: Record<string, string> = { day: '日', week: '周', month: '月' };
+const icons = ['👥', '👁️', '📦', '💰'];
 
 const SystemOverviewWithExport: React.FC = () => {
+  const { t } = useTranslation();
+  const { message } = App.useApp();
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<{ label: string; value: number; unit?: string }[]>([]);
+  const [trendData, setTrendData] = useState<{ label: string; value: number }[]>([]);
+  const [orderData, setOrderData] = useState<{ module: string; value: number }[]>([]);
+  const [regionList, setRegionList] = useState<{ name: string; value: number }[]>([]);
+  const [healthItems, setHealthItems] = useState<{ key: string; label: string; value: number; unit: string; threshold: { warning: number; critical: number }; inverse?: boolean }[]>([]);
   const [modalState, setModalState] = useState<{
     open: boolean;
     title: string;
@@ -25,21 +30,52 @@ const SystemOverviewWithExport: React.FC = () => {
     data: { label: string; value: number }[];
   } | null>(null);
 
-  const trendData = visitTrendData[timeRange];
-  const orderData = orderRatioData[timeRange];
-  const regionList = regionData[timeRange];
+  const timeRangeLabels: Record<string, string> = {
+    day: t('overview.day'),
+    week: t('overview.week'),
+    month: t('overview.month'),
+  };
+
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [statsData, trendsData, healthData] = await Promise.all([
+        overviewApi.getStats(),
+        overviewApi.getTrends(timeRange),
+        overviewApi.getHealth(),
+      ]);
+
+      setStats([
+        { label: t('overview.onlineUsers'), value: statsData.onlineUsers },
+        { label: t('overview.todayVisits'), value: statsData.todayVisits },
+        { label: t('overview.totalOrders'), value: statsData.todayOrders },
+        { label: t('overview.totalRevenue'), value: statsData.todayRevenue, unit: '¥' },
+      ]);
+      setTrendData(trendsData.visitTrend?.map((d: any) => ({ label: d.date || d.label, value: d.visits ?? d.value })) || []);
+      setOrderData(trendsData.orderRatio?.map((d: any) => ({ module: d.module || d.name, value: d.value })) || []);
+      setRegionList(trendsData.regionDistribution?.map((d: any) => ({ name: d.name, value: d.value })) || []);
+      setHealthItems([
+        { key: 'cpu', label: t('overview.cpuUsage'), value: healthData.cpuUsage, unit: '%', threshold: { warning: 70, critical: 90 } },
+        { key: 'memory', label: t('overview.memoryUsage'), value: healthData.memoryUsage, unit: '%', threshold: { warning: 75, critical: 90 } },
+        { key: 'disk', label: t('overview.diskFree'), value: healthData.diskFree, unit: 'GB', threshold: { warning: 50, critical: 20 }, inverse: true },
+      ]);
+    } catch (err) {
+      message.error(t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  }, [timeRange, message, t]);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const exportData = useMemo<ExportData>(() => ({
-    stats: statCardsData.map((card) => ({
-      label: card.title,
-      value: card.value,
-    })),
+    stats: stats.map((s) => ({ label: s.label, value: s.value })),
     charts: {
       visitTrend: trendData.map((d) => ({ label: d.label, value: d.value })),
       orderRatio: orderData.map((d) => ({ label: d.module, value: d.value })),
       region: regionList.map((d) => ({ label: d.name, value: d.value })),
     },
-  }), [timeRange, trendData, orderData, regionList]);
+  }), [stats, trendData, orderData, regionList]);
 
   const { exporting, handleExport } = useExport({ data: exportData });
 
@@ -47,25 +83,38 @@ const SystemOverviewWithExport: React.FC = () => {
     setModalState({ open: true, title, chartType, chartOption: option, data });
   };
 
-  const handleModalClose = () => {
-    setModalState(null);
+  const handleModalClose = () => setModalState(null);
+
+  const handleExportClick = async (key: ExportFormat) => {
+    if (key === 'excel') {
+      try {
+        const token = JSON.parse(localStorage.getItem('auth-storage') || '{}')?.state?.token;
+        const res = await fetch('http://localhost:3001/api/overview/export', {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${t('overview.exportFilename')}_${new Date().toLocaleDateString()}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch { message.error(t('common.error')); }
+    } else {
+      handleExport(key);
+    }
   };
 
-  const exportMenuItems = [
-    { key: 'excel', label: '导出 Excel' },
-    { key: 'csv', label: '导出 CSV' },
-    { key: 'pdf', label: '导出 PDF' },
-  ];
-
-  const getHealthStatus = (item: typeof healthData[0]) => {
+  const getHealthStatus = (item: typeof healthItems[0]) => {
     if (item.inverse) {
-      if (item.value <= item.threshold.critical) return { color: '#f5222d', label: '严重' };
-      if (item.value <= item.threshold.warning) return { color: '#fa8c16', label: '警告' };
-      return { color: '#52c41a', label: '正常' };
+      if (item.value <= item.threshold.critical) return { color: '#f5222d', label: t('overview.statusCritical') };
+      if (item.value <= item.threshold.warning) return { color: '#fa8c16', label: t('overview.statusWarning') };
+      return { color: '#52c41a', label: t('overview.statusNormal') };
     }
-    if (item.value >= item.threshold.critical) return { color: '#f5222d', label: '严重' };
-    if (item.value >= item.threshold.warning) return { color: '#fa8c16', label: '警告' };
-    return { color: '#52c41a', label: '正常' };
+    if (item.value >= item.threshold.critical) return { color: '#f5222d', label: t('overview.statusCritical') };
+    if (item.value >= item.threshold.warning) return { color: '#fa8c16', label: t('overview.statusWarning') };
+    return { color: '#52c41a', label: t('overview.statusNormal') };
   };
 
   const lineOption = {
@@ -93,97 +142,88 @@ const SystemOverviewWithExport: React.FC = () => {
     }],
   };
 
-  const gaugeOption = (item: typeof healthData[0]) => {
+  const gaugeOption = (item: typeof healthItems[0]) => {
     const status = getHealthStatus(item);
     return {
-      series: [
-        {
-          type: 'gauge',
-          min: 0,
-          max: item.inverse ? 200 : 100,
-          progress: { show: true, width: 10 },
-          axisLine: { lineStyle: { width: 10 } },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          axisLabel: { show: false },
-          pointer: { show: false },
-          anchor: { show: false },
-          title: { offsetCenter: [0, '60%'], fontSize: 12, color: '#888' },
-          detail: {
-            width: 50,
-            height: 14,
-            fontSize: 22,
-            fontWeight: 'bold',
-            color: status.color,
-            offsetCenter: [0, '10%'],
-            formatter: `{value}${item.unit}`,
-          },
-          data: [{ value: item.value, name: item.label, itemStyle: { color: status.color } }],
+      series: [{
+        type: 'gauge',
+        min: 0,
+        max: item.inverse ? 200 : 100,
+        progress: { show: true, width: 10 },
+        axisLine: { lineStyle: { width: 10 } },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        pointer: { show: false },
+        anchor: { show: false },
+        title: { offsetCenter: [0, '60%'], fontSize: 12, color: '#888' },
+        detail: {
+          width: 50, height: 14, fontSize: 22, fontWeight: 'bold',
+          color: status.color, offsetCenter: [0, '10%'],
+          formatter: `{value}${item.unit}`,
         },
-      ],
+        data: [{ value: item.value, name: item.label, itemStyle: { color: status.color } }],
+      }],
     };
   };
+
+  const exportMenuItems = [
+    { key: 'excel', label: t('export.excel') },
+    { key: 'csv', label: t('export.csv') },
+    { key: 'pdf', label: t('export.pdf') },
+  ];
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Title level={3} style={{ margin: 0 }}>系统概览</Title>
+        <Title level={3} style={{ margin: 0 }}>{t('overview.pageTitle')}</Title>
         <Space>
-          <Button icon={<ReloadOutlined />}>刷新</Button>
+          <Button icon={<ReloadOutlined />} onClick={fetchAll} loading={loading}>{t('overview.refresh')}</Button>
         </Space>
       </div>
 
-      {/* 可滚动区域 */}
       <div className={styles.scrollable}>
-        {/* 统计卡片 */}
         <div className={styles.statGrid}>
-          {statCardsData.map((card) => (
-            <div key={card.key} className={styles.statCard}>
-              <div className={styles.statIcon}>{card.icon}</div>
-              <div className={styles.statTitle}>{card.title}</div>
+          {stats.map((card, idx) => (
+            <div key={card.label} className={styles.statCard}>
+              <div className={styles.statIcon}>{icons[idx]}</div>
+              <div className={styles.statTitle}>{card.label}</div>
               <div className={styles.statValue}>
                 {card.unit === '¥' ? `¥${card.value.toLocaleString()}` : card.value.toLocaleString()}
               </div>
-              {card.trend && (
-                <Tag color={card.trend.direction === 'up' ? 'green' : 'red'}>
-                  {card.trend.direction === 'up' ? '↑' : '↓'} {card.trend.value}%
-                </Tag>
-              )}
             </div>
           ))}
         </div>
 
-        {/* 趋势图表 */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <Title level={5} style={{ margin: 0 }}>趋势分析</Title>
+            <Title level={5} style={{ margin: 0 }}>{t('overview.trendAnalysis')}</Title>
             <Segmented
-              options={[{ label: '日', value: 'day' }, { label: '周', value: 'week' }, { label: '月', value: 'month' }]}
+              options={[{ label: t('overview.day'), value: 'day' }, { label: t('overview.week'), value: 'week' }, { label: t('overview.month'), value: 'month' }]}
               value={timeRange}
               onChange={(v) => setTimeRange(v as typeof timeRange)}
             />
           </div>
           <div className={styles.chartGrid}>
-            <div className={styles.chartCard} style={{ cursor: 'pointer' }} onClick={() => handleChartClick('line', `访问趋势（${timeRangeLabels[timeRange]}）`, lineOption, trendData.map((d) => ({ label: d.label, value: d.value })))}>
-              <div className={styles.chartTitle}>访问趋势</div>
+            <div className={styles.chartCard} style={{ cursor: 'pointer' }} onClick={() => handleChartClick('line', `${t('overview.visitTrend')}（${timeRangeLabels[timeRange]}）`, lineOption, trendData.map((d) => ({ label: d.label, value: d.value })))}>
+              <div className={styles.chartTitle}>{t('overview.visitTrend')}</div>
               <ReactECharts option={lineOption} style={{ height: 280 }} />
             </div>
-            <div className={styles.chartCard} style={{ cursor: 'pointer' }} onClick={() => handleChartClick('bar', `订单占比（${timeRangeLabels[timeRange]}）`, barOption, orderData.map((d) => ({ label: d.module, value: d.value })))}>
-              <div className={styles.chartTitle}>订单占比</div>
+            <div className={styles.chartCard} style={{ cursor: 'pointer' }} onClick={() => handleChartClick('bar', `${t('overview.orderRatio')}（${timeRangeLabels[timeRange]}）`, barOption, orderData.map((d) => ({ label: d.module, value: d.value })))}>
+              <div className={styles.chartTitle}>{t('overview.orderRatio')}</div>
               <ReactECharts option={barOption} style={{ height: 280 }} />
             </div>
-            <div className={styles.chartCard} style={{ cursor: 'pointer' }} onClick={() => handleChartClick('pie', `地域分布（${timeRangeLabels[timeRange]}）`, pieOption, regionList.map((d) => ({ label: d.name, value: d.value })))}>
-              <div className={styles.chartTitle}>地域分布</div>
+            <div className={styles.chartCard} style={{ cursor: 'pointer' }} onClick={() => handleChartClick('pie', `${t('overview.regionDistribution')}（${timeRangeLabels[timeRange]}）`, pieOption, regionList.map((d) => ({ label: d.name, value: d.value })))}>
+              <div className={styles.chartTitle}>{t('overview.regionDistribution')}</div>
               <ReactECharts option={pieOption} style={{ height: 280 }} />
             </div>
           </div>
         </div>
 
-        {/* 健康监控 */}
         <div className={styles.section}>
-          <Title level={5}>系统健康</Title>
+          <Title level={5}>{t('overview.systemHealth')}</Title>
           <div className={styles.gaugeGrid}>
-            {healthData.map((item) => {
+            {healthItems.map((item) => {
               const status = getHealthStatus(item);
               return (
                 <div key={item.key} className={styles.gaugeCard}>
@@ -195,21 +235,20 @@ const SystemOverviewWithExport: React.FC = () => {
           </div>
         </div>
 
-        {/* 快速操作 */}
         <div className={styles.actions}>
           <Dropdown
             menu={{
               items: exportMenuItems,
-              onClick: ({ key }) => handleExport(key as ExportFormat),
+              onClick: ({ key }) => handleExportClick(key as ExportFormat),
             }}
             trigger={['hover']}
           >
             <Button type="primary" loading={exporting}>
-              数据导出 <DownOutlined />
+              {t('export.title')} <DownOutlined />
             </Button>
           </Dropdown>
-          <Button icon={<CloudServerOutlined />}>系统备份</Button>
-          <Button icon={<FileTextOutlined />}>日志查看</Button>
+          <Button icon={<CloudServerOutlined />}>{t('overview.systemBackup')}</Button>
+          <Button icon={<FileTextOutlined />}>{t('overview.logView')}</Button>
         </div>
       </div>
 

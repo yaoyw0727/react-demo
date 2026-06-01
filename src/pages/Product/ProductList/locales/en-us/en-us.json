@@ -22,5 +22,14 @@
   "product.statusOutOfStock": "Out of Stock",
   "product.product": "Product",
   "product.stock": "Stock",
-  "product.action": "Action"
+  "product.action": "Action",
+  "product.nameRequired": "Please enter product name",
+  "product.namePlaceholder": "Enter product name",
+  "product.categoryRequired": "Please select category",
+  "product.categoryPlaceholder": "Select category",
+  "product.priceRequired": "Please enter price",
+  "product.stockRequired": "Please enter stock",
+  "product.pricePlaceholder": "Enter price",
+  "product.stockPlaceholder": "Enter stock",
+  "product.statusPlaceholder": "Select status"
 }

@@ -23,5 +23,7 @@
   "user.usernameRequired": "请输入用户名",
   "user.emailRequired": "请输入邮箱",
   "user.emailInvalid": "请输入有效的邮箱地址",
-  "user.roleRequired": "请选择角色"
+  "user.roleRequired": "请选择角色",
+  "user.passwordRequired": "请输入密码",
+  "user.passwordPlaceholder": "请输入密码"
 }

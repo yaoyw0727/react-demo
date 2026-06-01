@@ -1,26 +1,37 @@
-/**
- * 应用主组件
- * 配置 React Router 路由
- */
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { App as AntApp } from 'antd';
 import MainLayout from './layouts/MainLayout';
+import Login from './pages/Login';
 import { routes } from './routes';
 import { generateRouterConfig } from './routes/tools';
+import { useAuthStore } from './store/auth';
+import { loadSettingsFromBackend } from './services/settingsSync';
+
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
+  const token = useAuthStore((s) => s.token);
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+});
 
 const App: React.FC = () => {
-  // 从 routes 配置生成路由对象
-  const routerConfig = generateRouterConfig(routes);
+  const token = useAuthStore((s) => s.token);
+  const routerConfig = useMemo(() => generateRouterConfig(routes), []);
 
-  // 递归渲染路由，支持子路由
-  const renderRoutes = (routeList: typeof routerConfig) => {
-    return routeList.map((route) => {
-      // 如果有子路由，渲染父路由包含子路由
+  useEffect(() => {
+    if (token) {
+      loadSettingsFromBackend();
+    }
+  }, [token]);
+
+  const innerRoutes = useMemo(() => {
+    return routerConfig.map((route) => {
       if (route.children && route.children.length > 0) {
         return (
           <Route key={route.path} path={route.path} element={route.element}>
             {route.children.map((child) => {
-              // 提取子路由的相对路径
               const relativePath = child.path.replace(route.path + '/', '');
               return (
                 <Route key={child.path} path={relativePath} element={child.element} />
@@ -29,19 +40,30 @@ const App: React.FC = () => {
           </Route>
         );
       }
-      // 无子路由，直接渲染
       return <Route key={route.path} path={route.path} element={route.element} />;
     });
-  };
+  }, [routerConfig]);
 
   return (
-    <Router>
-      <MainLayout>
+    <AntApp>
+      <Router>
         <Routes>
-          {renderRoutes(routerConfig)}
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Routes>
+                    {innerRoutes}
+                  </Routes>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-      </MainLayout>
-    </Router>
+      </Router>
+    </AntApp>
   );
 };
 

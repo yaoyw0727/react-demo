@@ -254,7 +254,7 @@ const handleSubmit = useCallback((values) => {
     sort: values.sort || data.length + 1,
   };
   setData((prev) => [newCategory, ...prev]);
-  message.success('成功');
+  message.success(t('common.success'));
   setDrawerVisible(false);
 }, [data.length, message]);
 ```

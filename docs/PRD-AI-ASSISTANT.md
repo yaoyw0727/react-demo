@@ -1,9 +1,9 @@
 # PRD: AI 助手弹窗功能
 
-**状态**: 📋 Ready for Implementation  
+**状态**: ✅ 原型已完成 (Prototype)  
 **优先级**: P1  
 **创建日期**: 2026-05-22  
-**关联 Issue**: 待创建
+**关联文件**: `src/pages/prototype/AIAssistantPrototype/` (3 种交互变体)
 
 ---
 

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { App } from 'antd';
+import { useTranslation } from 'react-i18next';
 import {
   exportToExcel,
   exportToCSV,
@@ -18,6 +19,7 @@ interface UseExportOptions {
 export function useExport({ data, onSuccess }: UseExportOptions) {
   const [exporting, setExporting] = useState(false);
   const { message } = App.useApp();
+  const { t } = useTranslation();
 
   const handleExport = useCallback(
     async (format: ExportFormat) => {
@@ -43,15 +45,15 @@ export function useExport({ data, onSuccess }: UseExportOptions) {
 
         triggerDownload(blob, filename);
         onSuccess?.(format);
-        message.success('导出成功');
+        message.success(t('common.success'));
       } catch (error) {
-        message.error('导出失败，请重试');
+        message.error(t('common.error'));
         console.error('Export failed:', error);
       } finally {
         setExporting(false);
       }
     },
-    [data, onSuccess, message]
+    [data, onSuccess, message, t]
   );
 
   return { exporting, handleExport };

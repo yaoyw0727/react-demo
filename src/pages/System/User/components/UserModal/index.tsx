@@ -1,16 +1,35 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { roleApi, type RoleItem } from '@/services/api/role';
+import type { UserItem } from '@/services/api/user';
 
 export interface UserModalProps {
   open: boolean;
+  editItem: UserItem | null;
   onCancel: () => void;
-  onOk: (values: { username: string; email: string; role: string }) => void;
+  onOk: (values: { username: string; email: string; roleId: string; password?: string }) => void;
 }
 
-const UserModal: React.FC<UserModalProps> = ({ open, onCancel, onOk }) => {
+const UserModal: React.FC<UserModalProps> = ({ open, editItem, onCancel, onOk }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
+  const [roles, setRoles] = useState<RoleItem[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      roleApi.list({ page: 1, limit: 100 }).then((res) => setRoles(res.data)).catch(() => {});
+      if (editItem) {
+        form.setFieldsValue({
+          username: editItem.username,
+          email: editItem.email,
+          roleId: editItem.roleId,
+        });
+      } else {
+        form.resetFields();
+      }
+    }
+  }, [open, editItem, form]);
 
   const handleOk = useCallback(async () => {
     try {
@@ -29,7 +48,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, onCancel, onOk }) => {
 
   return (
     <Modal
-      title={t('user.addUser')}
+      title={editItem ? t('user.editUser') : t('user.addUser')}
       open={open}
       onOk={handleOk}
       onCancel={handleCancel}
@@ -55,14 +74,20 @@ const UserModal: React.FC<UserModalProps> = ({ open, onCancel, onOk }) => {
         >
           <Input placeholder={t('user.emailPlaceholder')} />
         </Form.Item>
+        {!editItem && (
+          <Form.Item name="password" label={t('user.password')} rules={[{ required: true, message: t('user.passwordRequired') }]}>
+            <Input.Password placeholder={t('user.passwordPlaceholder')} />
+          </Form.Item>
+        )}
         <Form.Item
-          name="role"
+          name="roleId"
           label={t('user.role')}
           rules={[{ required: true, message: t('user.roleRequired') }]}
         >
           <Select placeholder={t('user.rolePlaceholder')}>
-            <Select.Option value={t('common.admin')}>{t('common.admin')}</Select.Option>
-            <Select.Option value={t('user.normalUser')}>{t('user.normalUser')}</Select.Option>
+            {roles.map((role) => (
+              <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option>
+            ))}
           </Select>
         </Form.Item>
       </Form>

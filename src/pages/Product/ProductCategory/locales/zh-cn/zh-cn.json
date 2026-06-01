@@ -10,5 +10,6 @@
   "product.addCategory": "新增分类",
   "product.categoryNamePlaceholder": "请输入分类名称",
   "product.categoryDescriptionPlaceholder": "请输入分类描述",
-  "product.categoryNameRequired": "请输入分类名称"
+  "product.categoryNameRequired": "请输入分类名称",
+  "product.sortPlaceholder": "请输入排序值"
 }

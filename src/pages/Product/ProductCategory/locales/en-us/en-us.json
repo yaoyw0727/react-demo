@@ -10,5 +10,6 @@
   "product.addCategory": "Add Category",
   "product.categoryNamePlaceholder": "Enter category name",
   "product.categoryDescriptionPlaceholder": "Enter category description",
-  "product.categoryNameRequired": "Please enter category name"
+  "product.categoryNameRequired": "Please enter category name",
+  "product.sortPlaceholder": "Enter sort order"
 }

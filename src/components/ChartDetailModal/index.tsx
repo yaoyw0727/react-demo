@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Table, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import styles from './index.module.less';
 
@@ -14,17 +15,17 @@ export interface ChartDetailModalProps {
   onClose: () => void;
 }
 
-const getColumnConfig = (chartType: 'line' | 'bar' | 'pie') => {
+const getColumnConfig = (chartType: 'line' | 'bar' | 'pie', t: (key: string) => string) => {
   if (chartType === 'pie') {
     return {
-      labelKey: '地区',
-      valueKey: '数值',
-      extraKey: '占比',
+      labelKey: t('chartDetail.region'),
+      valueKey: t('chartDetail.value'),
+      extraKey: t('chartDetail.percentage'),
     };
   }
   return {
-    labelKey: chartType === 'line' ? '时间' : '模块',
-    valueKey: '数值',
+    labelKey: chartType === 'line' ? t('chartDetail.time') : t('chartDetail.module'),
+    valueKey: t('chartDetail.value'),
   };
 };
 
@@ -36,7 +37,8 @@ const ChartDetailModal: React.FC<ChartDetailModalProps> = ({
   data,
   onClose,
 }) => {
-  const columns = getColumnConfig(chartType);
+  const { t } = useTranslation();
+  const columns = getColumnConfig(chartType, t);
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   const tableColumns: any[] = [
@@ -51,7 +53,7 @@ const ChartDetailModal: React.FC<ChartDetailModalProps> = ({
 
   if (chartType === 'pie') {
     tableColumns.push({
-      title: '占比',
+      title: t('chartDetail.percentage'),
       key: 'percentage',
       render: (_: any, record: { value: number }) => `${((record.value / total) * 100).toFixed(1)}%`,
     });
@@ -70,7 +72,7 @@ const ChartDetailModal: React.FC<ChartDetailModalProps> = ({
       <div className={styles.chartContainer}>
         <ReactECharts option={chartOption} style={{ height: 400, width: '100%' }} />
       </div>
-      <Title level={5} className={styles.tableTitle}>详细数据</Title>
+      <Title level={5} className={styles.tableTitle}>{t('chartDetail.detailData')}</Title>
       <Table
         columns={tableColumns}
         dataSource={data.map((item, index) => ({ ...item, key: index }))}

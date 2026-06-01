@@ -23,5 +23,7 @@
   "user.usernameRequired": "Please enter username",
   "user.emailRequired": "Please enter email",
   "user.emailInvalid": "Please enter a valid email",
-  "user.roleRequired": "Please select role"
+  "user.roleRequired": "Please select role",
+  "user.passwordRequired": "Please enter password",
+  "user.passwordPlaceholder": "Enter password"
 }

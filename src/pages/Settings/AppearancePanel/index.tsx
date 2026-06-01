@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppearanceStore } from '@/store/appearance';
 import { DEFAULT_APPEARANCE } from '@/constants';
 import type { LayoutMode, ThemeMode } from '@/constants';
+import { syncSettingsToBackend } from '@/services/settingsSync';
 import ActionsBar from '../components/ActionsBar';
 import LayoutModeSelector from './components/LayoutModeSelector';
 import ThemeModeSelector from './components/ThemeModeSelector';
@@ -36,11 +37,12 @@ const AppearancePanel: React.FC = () => {
     resetAll(layoutMode, themeMode, primaryColor);
   }, [layoutMode, themeMode, primaryColor, form]);
 
-  // 保存设置到 store
+  // 保存设置到 store 并同步到后端
   const handleSave = () => {
     setLayoutMode(selectedLayout);
     setThemeMode(selectedTheme);
     setPrimaryColor(selectedColor);
+    syncSettingsToBackend();
     message.success(t('settings.settingsSaved'));
   };
 
