@@ -12,6 +12,7 @@ import ProductCategory from '@/pages/Product/ProductCategory';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
 import SystemOverviewPrototype from '@/pages/prototype/SystemOverviewPrototype';
+import AIAssistantPrototype from '@/pages/prototype/AIAssistantPrototype';
 import SystemOverviewWithExport from '@/pages/SystemOverviewWithExport';
 import { SETTINGS_CONFIG } from '@/constants/settings';
 import type { RouteConfig } from './tools';
@@ -49,5 +50,6 @@ export const routes: RouteConfig[] = [
     ? [{ path: '/settings', component: Settings, title: '设置', labelKey: 'menu.settings', icon: <SettingOutlined />, hidden: true }]
     : []),
   { path: '/prototype/system-overview', component: SystemOverviewPrototype, title: '原型-系统概览', labelKey: 'prototype.systemOverview', hidden: true },
+  { path: '/prototype/ai-assistant', component: AIAssistantPrototype, title: '原型-AI助手', labelKey: 'prototype.aiAssistant', hidden: true },
   { path: '*', component: NotFound, title: '404', labelKey: 'common.notFound', hidden: true },
 ];

@@ -64,7 +64,7 @@ const ChartDetailModal: React.FC<ChartDetailModalProps> = ({
       onCancel={onClose}
       width={800}
       footer={null}
-      maskClosable
+      mask={{closable: true}}
       destroyOnHidden
     >
       <div className={styles.chartContainer}>

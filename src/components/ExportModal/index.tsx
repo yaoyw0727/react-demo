@@ -22,7 +22,7 @@ const ExportModal: React.FC<ExportModalProps> = ({ open, exporting, onCancel, on
       footer={null}
       destroyOnHidden
     >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
         <Button
           type="primary"
           icon={<FileExcelOutlined />}

@@ -1,0 +1,241 @@
+/**
+ * PROTOTYPE — Variant C Styles
+ * 极简笔记风格：无边框无气泡，纯文本块，大量留白，类似 Notion
+ */
+@import '@/assets/styles/variables.less';
+
+.mockPage {
+  min-height: 100vh;
+  background: #fff;
+  transition: filter 0.3s;
+}
+.blurred { filter: blur(2px); pointer-events: none; }
+
+.mockHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 48px; padding: 0 24px; background: #fff;
+  border-bottom: 1px solid #eee;
+}
+.mockLogo { font-size: 22px; font-weight: 700; color: #333; letter-spacing: -1px; }
+.mockIcon {
+  width: 30px; height: 30px; border: none; background: transparent;
+  color: #999; cursor: pointer; font-size: 16px; margin-left: 12px;
+}
+.mockBody { height: calc(100vh - 48px); }
+
+.openBtn {
+  width: 34px; height: 34px; border: none; background: transparent;
+  color: #999; cursor: pointer; font-size: 18px;
+  &:hover { color: #333; }
+}
+.openBtnActive {
+  width: 34px; height: 34px; border: none; background: #f0f0f0;
+  color: #333; cursor: pointer; font-size: 18px; border-radius: 8px;
+}
+
+/* 窗口 */
+.window {
+  position: fixed;
+  width: 520px;
+  height: 640px;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+}
+.fullscreen {
+  right: 0 !important; bottom: 0 !important;
+  width: 100vw !important; height: 100vh !important;
+  z-index: 1000;
+}
+
+/* 顶栏 - 极简文字按钮 */
+.topBar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; border-bottom: 1px solid #f0f0f0;
+  cursor: grab; user-select: none; flex-shrink: 0;
+  &:active { cursor: grabbing; }
+}
+.topLeft {
+  display: flex; align-items: center; gap: 8px;
+  color: #333; font-size: 14px; font-weight: 500;
+}
+.topRight { display: flex; gap: 16px; }
+.linkBtn {
+  font-size: 13px; color: #999; cursor: pointer;
+  &:hover { color: #333; }
+}
+
+/* 主体 */
+.body { display: flex; flex: 1; min-height: 0; }
+
+/* 侧边栏 */
+.sidebar {
+  width: 240px;
+  border-right: 1px solid #f0f0f0;
+  display: flex; flex-direction: column; flex-shrink: 0;
+  position: relative;
+  background: #fafafa;
+}
+.sideTitle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; font-size: 12px; color: #999; letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.sessList { flex: 1; overflow-y: auto; padding: 0 8px; }
+.sessItem {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 6px; cursor: pointer;
+  &:hover { background: #f0f0f0; }
+}
+.activeSess { background: #e8e8e8 !important; }
+.sessTitle { font-size: 13px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.sessActions { display: flex; align-items: center; gap: 4px; color: #ccc; font-size: 12px; }
+.sessMore {
+  opacity: 0; cursor: pointer; font-size: 14px; position: relative;
+  &:hover .dropdown { display: flex; }
+}
+.sessItem:hover .sessMore { opacity: 1; }
+.dropdown {
+  display: none; position: absolute; right: 0; top: 100%;
+  background: #fff; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  flex-direction: column; padding: 4px; min-width: 120px; z-index: 10;
+  span { padding: 8px 12px; font-size: 12px; color: #333; &:hover { background: #f5f5f5; } }
+}
+.empty { text-align: center; padding: 40px 0; color: #ddd; font-size: 13px; }
+
+/* 编辑模式 */
+.editBox { display: flex; flex-direction: column; gap: 4px; }
+.editInput {
+  width: 100%; min-height: 60px;
+  border: 1px solid #ccc; border-radius: 6px;
+  padding: 8px 10px; font-size: 15px; font-family: inherit;
+  resize: vertical; outline: none; line-height: 1.6;
+  background: #fafafa; color: #333;
+  &:focus { border-color: #999; }
+}
+.editHint { font-size: 11px; color: #ccc; text-align: right; }
+
+.resizer {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 4px; cursor: col-resize; background: transparent;
+  transition: background 0.15s; z-index: 5;
+  &:hover { background: #999; }
+}
+
+/* 聊天区 */
+.chatArea { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.msgs {
+  flex: 1; overflow-y: auto; padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+.block { padding: 0; }
+.blockLabel {
+  font-size: 12px; color: #bbb; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.blockActions {
+  display: flex; gap: 2px; opacity: 0;
+  transition: opacity 0.15s;
+}
+.block:hover .blockActions { opacity: 1; }
+.blockBtn {
+  border: none; background: transparent; color: #ccc;
+  font-size: 11px; cursor: pointer; padding: 2px 6px;
+  border-radius: 4px; display: flex; align-items: center; gap: 3px;
+  &:hover { background: #f5f5f5; color: #666; }
+}
+.blockContent {
+  font-size: 15px; line-height: 1.8;
+  color: #333; white-space: pre-wrap; word-break: break-word;
+  :global {
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 14px; color: #e24; }
+    pre { background: #f8f8f8; color: #333; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; border: 1px solid #eee; }
+    blockquote { border-left: 3px solid #ddd; margin: 12px 0; padding-left: 16px; color: #888; }
+    ul, ol { padding-left: 24px; }
+    strong { font-weight: 600; }
+  }
+}
+.uBlock + .aBlock { padding-top: 8px; border-top: 1px solid #f0f0f0; }
+.aBlock + .uBlock { padding-top: 8px; border-top: 1px solid #f0f0f0; }
+
+.copyBtn {
+  border: none; background: transparent; color: #ccc; cursor: pointer;
+  font-size: 11px; padding: 0; opacity: 0;
+}
+.block:hover .copyBtn { opacity: 1; }
+.copyBtn:hover { color: #666; }
+
+.typingLine {
+  display: flex; gap: 6px; padding: 8px 0;
+  span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #ddd; animation: flicker 1.4s infinite;
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+@keyframes flicker {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+
+/* 空状态 */
+.emptyState {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 24px 60px; text-align: center;
+}
+.emptyIcon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: #f5f5f5;
+  display: flex; align-items: center; justify-content: center;
+  color: #999; font-size: 28px; margin-bottom: 20px;
+}
+.emptyTitle { font-size: 18px; color: #333; margin-bottom: 28px; }
+.suggestions { display: flex; flex-direction: column; gap: 6px; max-width: 320px; width: 100%; margin-bottom: 24px; }
+.suggestion {
+  padding: 8px 16px; border-radius: 6px; border: none;
+  background: #fafafa; color: #666; cursor: pointer;
+  font-size: 13px; text-align: left; transition: all 0.15s;
+  &:hover { background: #f0f0f0; color: #333; }
+}
+.emptyInput {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; max-width: 480px;
+  padding: 8px 12px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  &:focus-within { border-color: #ccc; }
+}
+.emptyTextarea {
+  flex: 1; border: none; padding: 4px 0;
+  font-size: 14px; font-family: inherit;
+  resize: none; outline: none; line-height: 1.5;
+  background: transparent; color: #333;
+  &::placeholder { color: #ddd; }
+}
+
+/* 输入区 */
+.inputArea {
+  display: flex; align-items: center; gap: 8px;
+  padding: 16px 20px; border-top: 1px solid #f0f0f0;
+}
+.input {
+  flex: 1; border: none; padding: 8px 0;
+  font-size: 15px; font-family: inherit; color: #333;
+  background: transparent; resize: none; outline: none;
+  &::placeholder { color: #ddd; }
+}
+.sendBtn {
+  width: 36px; height: 36px; border: none; border-radius: 8px;
+  background: #333; color: #fff; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  &:hover:not(:disabled) { opacity: 0.85; }
+  &:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
+}
