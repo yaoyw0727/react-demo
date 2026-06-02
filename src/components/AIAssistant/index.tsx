@@ -2,7 +2,7 @@
  * AI 助手 — 入口组件
  * 顶部导航栏入口图标 + 弹窗容器（拖动 + 四边缩放）
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   RobotOutlined, CloseOutlined, FullscreenOutlined, FullscreenExitOutlined,
   MenuFoldOutlined, MenuUnfoldOutlined,
@@ -15,11 +15,26 @@ import styles from './index.module.less';
 
 const AIAssistant: React.FC = () => {
   const store = useChatStore();
-  const { handleMouseDown } = useDraggable(store.position.x, store.position.y, (p) => store.setPosition(p));
+  const TOP_OFFSET = 2;
+  const { handleMouseDown } = useDraggable(store.position.x, store.position.y, (p) => store.setPosition(p), TOP_OFFSET);
   const { setEl, handleMouseDown: handleResizeDown, activeEdge } = useResizable({
     minWidth: 480, minHeight: 600,
     onResize: (rect) => { store.setPosition({ x: rect.x, y: rect.y }); store.setWindowSize({ width: rect.width, height: rect.height }); },
   });
+
+  // Clamp position on open to prevent title bar being hidden behind browser toolbar
+  useEffect(() => {
+    if (store.isOpen) {
+      const clamped = { ...store.position };
+      if (clamped.y < TOP_OFFSET) clamped.y = TOP_OFFSET;
+      if (clamped.x < 0) clamped.x = 0;
+      if (clamped.x + 100 > window.innerWidth) clamped.x = Math.max(0, window.innerWidth - 100);
+      if (clamped.y + 60 > window.innerHeight) clamped.y = Math.max(TOP_OFFSET, window.innerHeight - 60);
+      if (clamped.x !== store.position.x || clamped.y !== store.position.y) {
+        store.setPosition(clamped);
+      }
+    }
+  }, [store.isOpen]);
 
   return (
     <>

@@ -29,7 +29,7 @@ export async function sendMessage(
       if (line.startsWith('data: ')) {
         const data = line.slice(6);
         if (data === '[DONE]') { onDone(content); return; }
-        content += data;
+        content += JSON.parse(data);
         onChunk(content);
       }
     }

@@ -35,7 +35,8 @@ export interface ChatState {
   removeMessagesAfter: (sessionId: string, messageId: string) => void;
 }
 
-const defaultPos = { x: typeof window !== 'undefined' ? window.innerWidth - 504 : 600, y: typeof window !== 'undefined' ? window.innerHeight - 664 : 400 };
+const TOP_OFFSET = 2;
+const defaultPos = { x: typeof window !== 'undefined' ? Math.max(0, window.innerWidth - 504) : 504, y: typeof window !== 'undefined' ? Math.max(TOP_OFFSET, window.innerHeight - 664) : 400 };
 
 export const useChatStore = create<ChatState>()(
   persist(

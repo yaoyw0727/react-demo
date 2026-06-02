@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { PlusOutlined, MoreOutlined, PushpinOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Modal } from 'antd';
 import { useChatStore, sortedSessions } from '@/store/chat';
 import styles from './index.module.less';
 
@@ -14,13 +15,12 @@ const ChatSidebar: React.FC = () => {
   const deleteSession = useChatStore((s) => s.deleteSession);
   const pinSession = useChatStore((s) => s.pinSession);
   const unpinSession = useChatStore((s) => s.unpinSession);
-  const toggleSidebar = useChatStore((s) => s.toggleSidebar);
 
   const list = sortedSessions(sessions);
 
   return (
     <div className={styles.sidebar}>
-      <button className={styles.newBtn} onClick={() => { createSession(); toggleSidebar(); }}>
+      <button className={styles.newBtn} onClick={() => createSession()}>
         <PlusOutlined /> 新会话
       </button>
       <div className={styles.list}>
@@ -29,7 +29,7 @@ const ChatSidebar: React.FC = () => {
           <div
             key={s.id}
             className={`${styles.item} ${s.id === activeSessionId ? styles.active : ''}`}
-            onClick={() => { setActiveSession(s.id); toggleSidebar(); }}
+            onClick={() => setActiveSession(s.id)}
           >
             <div className={styles.title}>{s.title}</div>
             <div className={styles.actions}>
@@ -40,7 +40,7 @@ const ChatSidebar: React.FC = () => {
                   <span onClick={(e) => { e.stopPropagation(); s.pinned ? unpinSession(s.id) : pinSession(s.id); }}>
                     <PushpinOutlined /> {s.pinned ? '取消置顶' : '置顶'}
                   </span>
-                  <span onClick={(e) => { e.stopPropagation(); if (window.confirm('确定删除该会话？')) deleteSession(s.id); }}>
+                  <span onClick={(e) => { e.stopPropagation(); Modal.confirm({ title: '删除会话', content: '确定删除该会话？', okText: '删除', okType: 'danger', cancelText: '取消', onOk: () => deleteSession(s.id) }); }}>
                     <DeleteOutlined /> 删除
                   </span>
                 </span>

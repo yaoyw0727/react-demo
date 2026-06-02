@@ -1,5 +1,6 @@
 /**
  * AI 助手 — 弹窗拖动 Hook
+ * @param topOffset 顶部最小间距，防止被浏览器工具栏遮挡
  */
 import { useRef, useCallback, useEffect } from 'react';
 
@@ -7,6 +8,7 @@ export function useDraggable(
   defaultX: number,
   defaultY: number,
   onChange: (pos: { x: number; y: number }) => void,
+  topOffset = 60,
 ) {
   const dragging = useRef(false);
   const start = useRef({ x: 0, y: 0 });
@@ -27,7 +29,7 @@ export function useDraggable(
       const dx = e.clientX - start.current.x;
       const dy = e.clientY - start.current.y;
       const newX = Math.max(0, Math.min(offset.current.x + dx, window.innerWidth - 100));
-      const newY = Math.max(0, Math.min(offset.current.y + dy, window.innerHeight - 60));
+      const newY = Math.max(topOffset, Math.min(offset.current.y + dy, window.innerHeight - 60));
       posRef.current = { x: newX, y: newY };
       onChange(posRef.current);
     };
@@ -43,7 +45,7 @@ export function useDraggable(
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
-  }, [onChange]);
+  }, [onChange, topOffset]);
 
   return { handleMouseDown };
 }

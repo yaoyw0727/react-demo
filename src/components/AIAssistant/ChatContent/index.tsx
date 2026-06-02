@@ -4,13 +4,14 @@
  */
 import React, { useRef, useEffect, useCallback } from 'react';
 import {
-  RobotOutlined, SendOutlined, StopOutlined, PaperClipOutlined,
+  RobotOutlined, SendOutlined, UserOutlined, PaperClipOutlined,
   CopyOutlined, CheckOutlined, ReloadOutlined,
 } from '@ant-design/icons';
 import { useChatStore } from '@/store/chat';
 import { sendMessage } from '@/services/api/ai';
 import { getMockReply } from '@/components/AIAssistant/mockData';
 import type { ChatMessage } from '@/components/AIAssistant/types';
+import MarkdownRenderer from '@/components/AIAssistant/MarkdownRenderer';
 import styles from './index.module.less';
 
 const PRESETS = [
@@ -27,12 +28,23 @@ const ChatContent: React.FC = () => {
   const activeSession = sessions.find((s) => s.id === activeSessionId) || sessions[0];
 
   const listRef = useRef<HTMLDivElement>(null);
+  const inputARef = useRef<HTMLTextAreaElement>(null);
+  const inputBRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = React.useState('');
   const [isStreaming, setIsStreaming] = React.useState(false);
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editValue, setEditValue] = React.useState('');
   const controllerRef = useRef<AbortController | null>(null);
+
+  const autoResizeTextarea = useCallback(() => {
+    const el = inputARef.current || inputBRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }, []);
+
+  useEffect(() => { autoResizeTextarea(); }, [input, autoResizeTextarea]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
@@ -73,6 +85,9 @@ const ChatContent: React.FC = () => {
         controller.signal,
       );
     } catch {
+      // Skip mock fallback if user manually stopped streaming
+      // (handleStop already nulled controllerRef)
+      if (!controllerRef.current) return;
       // Fallback to mock reply when AI backend is unavailable
       const mockContent = getMockReply();
       store.updateMessageContent(sessionId, assistantMsg.id, mockContent);
@@ -121,9 +136,10 @@ const ChatContent: React.FC = () => {
     const msgs = activeSession.messages;
     const lastAi = msgs[msgs.length - 1];
     if (lastAi?.role !== 'assistant') return;
-    store.removeMessagesAfter(activeSession.id, lastAi.id);
     const lastUser = [...msgs].reverse().find((m) => m.role === 'user');
-    if (lastUser) doSend(lastUser.content, activeSession.id);
+    if (!lastUser) return;
+    store.removeMessagesAfter(activeSession.id, lastUser.id);
+    doSend(lastUser.content, activeSession.id);
   }, [activeSession, isLoading, isStreaming, store, doSend]);
 
   // Delete message (pair: user msg + following AI reply)
@@ -159,16 +175,20 @@ const ChatContent: React.FC = () => {
               </button>
             ))}
           </div>
-          <div className={styles.inputBox} style={{ position: 'relative' }}>
+          <div className={styles.inputBox}>
             <textarea
+              ref={inputARef}
               value={input} onChange={(e) => setInput(e.target.value)}
+              onInput={autoResizeTextarea}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               placeholder="输入消息，Enter 发送" rows={2}
             />
             <div className={styles.inputBoxActions}>
               <button className={styles.attachBtn}><PaperClipOutlined /></button>
               {isStreaming ? (
-                <button className={styles.sendBtn} onClick={handleStop}><StopOutlined /></button>
+                <button className={styles.sendBtn} onClick={handleStop}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" /></svg>
+                </button>
               ) : (
                 <button className={styles.sendBtn} onClick={handleSend} disabled={!input.trim()}><SendOutlined /></button>
               )}
@@ -198,8 +218,8 @@ const ChatContent: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      <div className={`${styles.bubble} ${msg.status === 'streaming' ? styles.streamingCursor : ''}`}>
-                        {msg.content}
+                      <div className={`${styles.bubble} ${msg.status === 'streaming' ? styles.streamingCursor : ''} ${msg.role === 'assistant' ? styles.markdownBubble : ''}`}>
+                        {msg.role === 'assistant' ? <MarkdownRenderer content={msg.content} /> : msg.content}
                       </div>
                       {msg.status !== 'streaming' && (
                         <div className={styles.msgActions}>
@@ -218,7 +238,7 @@ const ChatContent: React.FC = () => {
                     </>
                   )}
                 </div>
-                {msg.role === 'user' && <div className={styles.userAvatar}><RobotOutlined /></div>}
+                {msg.role === 'user' && <div className={styles.userAvatar}><UserOutlined /></div>}
               </div>
             ))}
             {isStreaming && !activeSession.messages.some((m) => m.status === 'streaming') && (
@@ -234,14 +254,18 @@ const ChatContent: React.FC = () => {
           <div className={styles.inputArea}>
             <div className={styles.inputWrap}>
               <textarea
+                ref={inputBRef}
                 value={input} onChange={(e) => setInput(e.target.value)}
+                onInput={autoResizeTextarea}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 placeholder="输入消息，Enter 发送，Shift+Enter 换行" rows={2}
               />
               <div className={styles.inputActions}>
                 <button className={styles.attachBtn}><PaperClipOutlined /></button>
                 {isStreaming ? (
-                  <button className={styles.sendBtn} onClick={handleStop}><StopOutlined /></button>
+                  <button className={styles.sendBtn} onClick={handleStop}>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" /></svg>
+                  </button>
                 ) : (
                   <button className={styles.sendBtn} onClick={handleSend} disabled={!input.trim()}><SendOutlined /></button>
                 )}
