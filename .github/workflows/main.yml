@@ -1,0 +1,26 @@
+name: CI - Local
+
+on:
+  push:
+    branches: [main]      # 推到 main 才触发；本地先试可改你的分支名
+
+jobs:
+  build-and-run:
+    runs-on: self-hosted  # 关键：派给你的 WSL runner，不是 GitHub 云机器
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t react-demo-frontend .
+
+      - name: Run container
+        run: |
+          docker rm -f react-demo || true          # 清掉上次残留，避免端口占用
+          docker run -d --name react-demo -p 8080:80 react-demo-frontend
+
+      - name: Verify it is up   # 给个明确成功信号
+        run: |
+          sleep 3
+          docker ps --filter name=react-demo
+          curl -s http://localhost:8080 | head -c 200
