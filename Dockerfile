@@ -10,7 +10,7 @@
 # RUN npm ci --no-audit --no-fund --no-optional --verbose
 
 # RUN npm install 
-RUN npm ci --no-audit --no-fund
+RUN npm config set registry https://registry.npmmirror.com && npm ci --no-audit --no-fund
     
 COPY . .
 RUN npm run build
