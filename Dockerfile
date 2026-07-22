@@ -13,7 +13,8 @@
 RUN npm config set registry https://registry.npmmirror.com && npm install --legacy-peer-deps --no-audit --no-fund
     
 COPY . .
-RUN npm run build
+# RUN npm run build
+RUN npx vite build
 
 
 # 第二阶段  运行  需要nginx环境
