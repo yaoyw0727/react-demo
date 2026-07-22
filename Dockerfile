@@ -3,7 +3,7 @@
 
  WORKDIR /webapp
 
- COPY package.json package-lock.json ./
+ COPY package.json ./
 
 # ARG NPM_TOKEN
 # RUN npm config set //your-nexus-domain/repository/npm-group/:_authToken ${NPM_TOKEN}
