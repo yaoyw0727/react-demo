@@ -9,7 +9,8 @@
 # RUN npm config set //your-nexus-domain/repository/npm-group/:_authToken ${NPM_TOKEN}
 # RUN npm ci --no-audit --no-fund --no-optional --verbose
 
-RUN npm install 
+# RUN npm install 
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 RUN npm run build
