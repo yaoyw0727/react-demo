@@ -56,8 +56,8 @@ const CodeBlock: Components['code'] = ({ className, children, ...props }) => {
   }
   return <code className={styles.inlineCode} {...props}>{children}</code>;
 };
+function MarkdownRendererBase({ content }: Props) {
 
-const MarkdownRenderer: React.FC<Props> = ({ content }) => {
   const components: Components = {
     code: CodeBlock,
     table: ({ children }) => <div className={styles.tableWrap}><table className={styles.table}>{children}</table></div>,
@@ -72,6 +72,8 @@ const MarkdownRenderer: React.FC<Props> = ({ content }) => {
       {content}
     </ReactMarkdown>
   );
-};
+}
+
+const MarkdownRenderer = React.memo(MarkdownRendererBase);
 
 export default MarkdownRenderer;

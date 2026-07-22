@@ -1,17 +1,16 @@
-/**
- * AI 助手 — 右侧聊天内容区
- * 空状态 / 消息列表 + 输入框
- */
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import {
-  RobotOutlined, SendOutlined, UserOutlined, PaperClipOutlined,
-  CopyOutlined, CheckOutlined, ReloadOutlined,
+  RobotOutlined, SendOutlined, PaperClipOutlined,
 } from '@ant-design/icons';
+import { Tooltip, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
+import IconFont from '@/components/IconFont';
 import { useChatStore } from '@/store/chat';
+import { useModelStore } from '@/store/aiModel';
 import { sendMessage } from '@/services/api/ai';
 import { getMockReply } from '@/components/AIAssistant/mockData';
 import type { ChatMessage } from '@/components/AIAssistant/types';
-import MarkdownRenderer from '@/components/AIAssistant/MarkdownRenderer';
+import MessageList from './MessageList';
 import styles from './index.module.less';
 
 const PRESETS = [
@@ -21,13 +20,15 @@ const PRESETS = [
 ];
 
 const ChatContent: React.FC = () => {
-  const store = useChatStore();
   const sessions = useChatStore((s) => s.sessions);
   const activeSessionId = useChatStore((s) => s.activeSessionId);
   const isLoading = useChatStore((s) => s.isLoading);
+  const { availableModels, selectedProvider, selectedModel, fetchModels, setModel } = useModelStore();
+  const currentProvider = availableModels.find((p) => p.provider === selectedProvider);
+  const currentModel = currentProvider?.models.find((m) => m.id === selectedModel);
+  const [switchOpen, setSwitchOpen] = useState(false);
   const activeSession = sessions.find((s) => s.id === activeSessionId) || sessions[0];
 
-  const listRef = useRef<HTMLDivElement>(null);
   const inputARef = useRef<HTMLTextAreaElement>(null);
   const inputBRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = React.useState('');
@@ -46,66 +47,74 @@ const ChatContent: React.FC = () => {
 
   useEffect(() => { autoResizeTextarea(); }, [input, autoResizeTextarea]);
 
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [activeSession?.messages.length]);
+  useEffect(() => { fetchModels(); }, [fetchModels]);
 
-  const handleCopy = async (content: string, id: string) => {
+  const handleCopy = useCallback(async (content: string, id: string) => {
     await navigator.clipboard.writeText(content);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
+  }, []);
 
-  // Send message — uses backend AI API, falls back to Mock
   const doSend = useCallback(async (text: string, sessionId: string) => {
+    const { addMessage, updateMessageContent, updateMessageStatus, updateSessionTitle, setIsLoading } = useChatStore.getState();
     const userMsg: ChatMessage = {
       id: `m-${Date.now()}`, role: 'user', content: text, timestamp: Date.now(), status: 'sending',
     };
-    store.addMessage(sessionId, userMsg);
-    store.updateMessageStatus(sessionId, userMsg.id, 'sent');
-    const isFirst = sessions.find((s) => s.id === sessionId)?.messages.length === 1;
-    if (isFirst) store.updateSessionTitle(sessionId, text);
+    addMessage(sessionId, userMsg);
+    updateMessageStatus(sessionId, userMsg.id, 'sent');
+    const { sessions: latestSessions } = useChatStore.getState();
+    const isFirst = latestSessions.find((s) => s.id === sessionId)?.messages.length === 1;
+    if (isFirst) updateSessionTitle(sessionId, text);
 
     const assistantMsg: ChatMessage = {
       id: `m-${Date.now()}-reply`, role: 'assistant', content: '', timestamp: Date.now(), status: 'streaming',
     };
-    store.addMessage(sessionId, assistantMsg);
-    store.setIsLoading(true);
+    addMessage(sessionId, assistantMsg);
+    setIsLoading(true);
     setIsStreaming(true);
 
     const controller = new AbortController();
     controllerRef.current = controller;
 
     try {
+      const { selectedProvider: sp, selectedModel: sm } = useModelStore.getState();
       await sendMessage(
         text,
         sessionId,
-        (content) => store.updateMessageContent(sessionId, assistantMsg.id, content),
-        (_content) => { store.updateMessageStatus(sessionId, assistantMsg.id, 'sent'); },
+        (content) => updateMessageContent(sessionId, assistantMsg.id, content),
+        (_content) => { updateMessageStatus(sessionId, assistantMsg.id, 'sent'); },
         controller.signal,
+        sp,
+        sm,
       );
     } catch {
-      // Skip mock fallback if user manually stopped streaming
-      // (handleStop already nulled controllerRef)
       if (!controllerRef.current) return;
-      // Fallback to mock reply when AI backend is unavailable
       const mockContent = getMockReply();
-      store.updateMessageContent(sessionId, assistantMsg.id, mockContent);
-      store.updateMessageStatus(sessionId, assistantMsg.id, 'sent');
+      updateMessageContent(sessionId, assistantMsg.id, mockContent);
+      updateMessageStatus(sessionId, assistantMsg.id, 'sent');
     }
-    store.setIsLoading(false);
+    setIsLoading(false);
     setIsStreaming(false);
     controllerRef.current = null;
-  }, [sessions, store]);
+  }, []);
+
+  const menuItems: MenuProps['items'] = availableModels.flatMap((group) => [
+    { type: 'group', label: group.providerName, key: `g-${group.provider}` },
+    ...group.models.map((m) => ({
+      key: `${group.provider}/${m.id}`,
+      label: m.name,
+      onClick: () => setModel(group.provider, m.id),
+    })),
+  ]);
 
   const handleSend = useCallback(() => {
     const trimmed = input.trim();
     if (!trimmed || isLoading || isStreaming) return;
     let sid = activeSessionId;
-    if (!sid) sid = store.createSession();
+    if (!sid) sid = useChatStore.getState().createSession();
     setInput('');
     doSend(trimmed, sid);
-  }, [input, isLoading, isStreaming, activeSessionId, store, doSend]);
+  }, [input, isLoading, isStreaming, activeSessionId, doSend]);
 
   const handleStop = useCallback(() => {
     if (controllerRef.current) {
@@ -115,55 +124,65 @@ const ChatContent: React.FC = () => {
     if (activeSession) {
       const lastMsg = activeSession.messages[activeSession.messages.length - 1];
       if (lastMsg?.status === 'streaming') {
-        store.updateMessageStatus(activeSession.id, lastMsg.id, 'sent');
+        useChatStore.getState().updateMessageStatus(activeSession.id, lastMsg.id, 'sent');
       }
     }
-    store.setIsLoading(false);
+    useChatStore.getState().setIsLoading(false);
     setIsStreaming(false);
-  }, [activeSession, store]);
+  }, [activeSession]);
 
-  // Preset click → send directly
   const handlePreset = useCallback((text: string) => {
     if (isLoading || isStreaming) return;
     let sid = activeSessionId;
-    if (!sid) sid = store.createSession();
+    if (!sid) sid = useChatStore.getState().createSession();
     doSend(text, sid);
-  }, [isLoading, isStreaming, activeSessionId, store, doSend]);
+  }, [isLoading, isStreaming, activeSessionId, doSend]);
 
-  // Regenerate last AI reply
   const handleRegenerate = useCallback(() => {
-    if (!activeSession || isLoading || isStreaming) return;
-    const msgs = activeSession.messages;
+    if (isLoading || isStreaming) return;
+    const { sessions: curSessions, activeSessionId: curId, removeMessagesAfter } = useChatStore.getState();
+    const curSession = curSessions.find((s) => s.id === curId);
+    if (!curSession) return;
+    const msgs = curSession.messages;
     const lastAi = msgs[msgs.length - 1];
     if (lastAi?.role !== 'assistant') return;
     const lastUser = [...msgs].reverse().find((m) => m.role === 'user');
     if (!lastUser) return;
-    store.removeMessagesAfter(activeSession.id, lastUser.id);
-    doSend(lastUser.content, activeSession.id);
-  }, [activeSession, isLoading, isStreaming, store, doSend]);
+    removeMessagesAfter(curSession.id, lastUser.id);
+    doSend(lastUser.content, curSession.id);
+  }, [isLoading, isStreaming, doSend]);
 
-  // Delete message (pair: user msg + following AI reply)
-  const handleDeleteMessage = (msgId: string) => {
-    if (!activeSession) return;
-    const idx = activeSession.messages.findIndex((m) => m.id === msgId);
+  const handleDeleteMessage = useCallback((msgId: string) => {
+    const { sessions: curSessions, activeSessionId: curId } = useChatStore.getState();
+    const session = curSessions.find((s) => s.id === curId);
+    if (!session) return;
+    const idx = session.messages.findIndex((m) => m.id === msgId);
     if (idx === -1) return;
-    const hasFollowingAssistant = idx + 1 < activeSession.messages.length && activeSession.messages[idx + 1].role === 'assistant';
+    const hasFollowingAssistant = idx + 1 < session.messages.length && session.messages[idx + 1].role === 'assistant';
     const deleteTotal = hasFollowingAssistant ? 2 : 1;
-    const kept = activeSession.messages.slice(0, idx);
-    const after = activeSession.messages.slice(idx + deleteTotal);
+    const kept = session.messages.slice(0, idx);
+    const after = session.messages.slice(idx + deleteTotal);
     useChatStore.setState((s) => ({
       sessions: s.sessions.map((ses) =>
-        ses.id === activeSession.id ? { ...ses, messages: [...kept, ...after] } : ses
+        ses.id === session.id ? { ...ses, messages: [...kept, ...after] } : ses
       ),
     }));
-  };
+  }, []);
+
+  const handleEditStart = useCallback((id: string, content: string) => {
+    setEditingId(id);
+    setEditValue(content);
+  }, []);
+
+  const handleEditCancel = useCallback(() => {
+    setEditingId(null);
+  }, []);
 
   const hasMessages = activeSession && activeSession.messages.length > 0;
 
   return (
     <div className={styles.chatArea}>
       {!hasMessages ? (
-        /* Empty state */
         <div className={styles.emptyState}>
           <RobotOutlined className={styles.emptyIcon} />
           <div className={styles.emptyTitle}>AI 助手已准备就绪</div>
@@ -184,7 +203,21 @@ const ChatContent: React.FC = () => {
               placeholder="输入消息，Enter 发送" rows={2}
             />
             <div className={styles.inputBoxActions}>
-              <button className={styles.attachBtn}><PaperClipOutlined /></button>
+              <div className={styles.inputLeft}>
+                <div className={styles.modelSwitch}>
+                  <span className={styles.modelDisplay}>
+                    <span className={styles.modelIcon} style={{ color: currentProvider?.color }}>{currentProvider?.icon}</span>
+                    <span className={styles.modelName}>{currentModel?.name || '选择模型'}</span>
+                  </span>
+                  <span className={styles.modelSep}>|</span>
+                  <Dropdown menu={{ items: menuItems }} open={switchOpen} onOpenChange={setSwitchOpen} trigger={['click']}>
+                    <Tooltip title="切换模型">
+                      <button className={styles.modelToggleBtn}><IconFont type="icon-change" /></button>
+                    </Tooltip>
+                  </Dropdown>
+                </div>
+                <button className={styles.attachBtn}><PaperClipOutlined /></button>
+              </div>
               {isStreaming ? (
                 <button className={styles.sendBtn} onClick={handleStop}>
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" /></svg>
@@ -196,61 +229,20 @@ const ChatContent: React.FC = () => {
           </div>
         </div>
       ) : (
-        /* Messages + Input */
         <>
-          <div className={styles.messageList} ref={listRef}>
-            {activeSession.messages.map((msg) => (
-              <div key={msg.id} className={`${styles.message} ${msg.role === 'user' ? styles.userMsg : styles.aiMsg} ${msg.status === 'error' ? styles.errorMsg : ''}`}>
-                {msg.role === 'assistant' && <div className={styles.msgAvatar}><RobotOutlined /></div>}
-                <div className={styles.msgBody}>
-                  {editingId === msg.id ? (
-                    <div className={styles.editBox}>
-                      <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') setEditingId(null); }} />
-                      <div className={styles.editRow}>
-                        <span className={styles.editHint}>Esc 取消</span>
-                        <div className={styles.editActions}>
-                          <button onClick={() => handleCopy(editValue, 'edit')}>
-                            {copiedId === 'edit' ? <><CheckOutlined /> 已复制</> : <><CopyOutlined /> 复制</>}
-                          </button>
-                          <button onClick={() => handleDeleteMessage(msg.id)}><ReloadOutlined /> 删除</button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className={`${styles.bubble} ${msg.status === 'streaming' ? styles.streamingCursor : ''} ${msg.role === 'assistant' ? styles.markdownBubble : ''}`}>
-                        {msg.role === 'assistant' ? <MarkdownRenderer content={msg.content} /> : msg.content}
-                      </div>
-                      {msg.status !== 'streaming' && (
-                        <div className={styles.msgActions}>
-                          <button onClick={() => handleCopy(msg.content, msg.id)}>
-                            {copiedId === msg.id ? <><CheckOutlined /> 已复制</> : <><CopyOutlined /> 复制</>}
-                          </button>
-                          {msg.role === 'user' && (
-                            <button onClick={() => { setEditingId(msg.id); setEditValue(msg.content); }}>编辑</button>
-                          )}
-                          <button onClick={() => handleDeleteMessage(msg.id)}>删除</button>
-                          {msg.role === 'assistant' && msg === activeSession.messages[activeSession.messages.length - 1] && msg.status === 'sent' && (
-                            <button onClick={handleRegenerate}><ReloadOutlined /> 重新回答</button>
-                          )}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-                {msg.role === 'user' && <div className={styles.userAvatar}><UserOutlined /></div>}
-              </div>
-            ))}
-            {isStreaming && !activeSession.messages.some((m) => m.status === 'streaming') && (
-              <div className={`${styles.message} ${styles.aiMsg}`}>
-                <div className={styles.msgAvatar}><RobotOutlined /></div>
-                <div className={styles.bubble}>
-                  <span className={styles.typing}><span>.</span><span>.</span><span>.</span></span>
-                </div>
-              </div>
-            )}
-          </div>
-
+          <MessageList
+            messages={activeSession.messages}
+            isStreaming={isStreaming}
+            editingId={editingId}
+            editValue={editValue}
+            copiedId={copiedId}
+            onCopy={handleCopy}
+            onEditStart={handleEditStart}
+            onEditChange={setEditValue}
+            onEditCancel={handleEditCancel}
+            onDelete={handleDeleteMessage}
+            onRegenerate={handleRegenerate}
+          />
           <div className={styles.inputArea}>
             <div className={styles.inputWrap}>
               <textarea
@@ -261,7 +253,21 @@ const ChatContent: React.FC = () => {
                 placeholder="输入消息，Enter 发送，Shift+Enter 换行" rows={2}
               />
               <div className={styles.inputActions}>
-                <button className={styles.attachBtn}><PaperClipOutlined /></button>
+                <div className={styles.inputLeft}>
+                  <div className={styles.modelSwitch}>
+                    <span className={styles.modelDisplay}>
+                      <span className={styles.modelIcon} style={{ color: currentProvider?.color }}>{currentProvider?.icon}</span>
+                      <span className={styles.modelName}>{currentModel?.name || '选择模型'}</span>
+                    </span>
+                    <span className={styles.modelSep}>|</span>
+                    <Dropdown menu={{ items: menuItems }} open={switchOpen} onOpenChange={setSwitchOpen} trigger={['click']}>
+                      <Tooltip title="切换模型">
+                        <button className={styles.modelToggleBtn}><IconFont type="icon-change" /></button>
+                      </Tooltip>
+                    </Dropdown>
+                  </div>
+                  <button className={styles.attachBtn}><PaperClipOutlined /></button>
+                </div>
                 {isStreaming ? (
                   <button className={styles.sendBtn} onClick={handleStop}>
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" /></svg>

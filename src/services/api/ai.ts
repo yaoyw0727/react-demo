@@ -1,8 +1,5 @@
-/**
- * AI 助手 — API 服务
- * 流式 SSE 请求 + 会话历史管理
- */
 import { get, del } from '@/services/request';
+import type { ProviderItem } from '@/store/aiModel';
 
 export async function sendMessage(
   message: string,
@@ -10,11 +7,13 @@ export async function sendMessage(
   onChunk: (content: string) => void,
   onDone: (fullContent: string) => void,
   signal?: AbortSignal,
+  provider?: string,
+  model?: string,
 ): Promise<void> {
   const res = await fetch('/api/ai/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, sessionId }),
+    body: JSON.stringify({ message, sessionId, provider, model }),
     signal,
   });
   if (!res.ok) throw new Error(`AI request failed: ${res.status}`);
@@ -35,6 +34,10 @@ export async function sendMessage(
     }
   }
   onDone(content);
+}
+
+export function fetchModels() {
+  return get<ProviderItem[]>('/ai/models');
 }
 
 export interface AiHistoryItem {
