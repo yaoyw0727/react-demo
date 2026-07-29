@@ -49,12 +49,15 @@ jobs:
           done
 
           # 3) 启动；若 80 端口仍被宿主机进程（nginx/apache 等）占用则给出明确提示
-          #    --add-host 让容器内的 host.docker.internal 解析到宿主机网关兼容proxy_pass http://common-server:3001; Docker Desktop写法
-          #    （Linux runner 默认不解析该域名，会导致 nginx 因 upstream 解析失败而崩溃）
+          #    镜像内 nginx.conf 用 proxy_pass http://common-server:3001 指向 compose 后端，
+          #    因此前端容器必须加入后端所在网络 wsl-app-net，否则 nginx 启动时解析不到
+          #    common-server 会直接崩溃（这正是之前“无容器 / 健康检查失败”的根因）。
+          docker network inspect wsl-app-net >/dev/null 2>&1 || docker network create wsl-app-net
           if ! docker run -d --name react-demo-prod \
                 -p 80:80 \
+                --network wsl-app-net \
                 "$IMAGE:$TAG"; then
-            echo "::error::docker run 失败：主机 80 端口仍被占用。请在 self-hosted runner 上执行 'docker ps --filter publish=80' 与 'sudo ss -tlnp | grep :80' 找出占用者并释放后重试。"
+            echo "::error::docker run 失败：主机 80 端口仍被占用，或 wsl-app-net 网络异常。请检查端口与后端 compose 是否已就绪。"
             exit 125
           fi
 
