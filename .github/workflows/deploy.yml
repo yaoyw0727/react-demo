@@ -37,16 +37,45 @@ jobs:
         run: |
           TAG="${SHA:-latest}"   # workflow_run 时用 sha；手动触发回退 latest
           docker pull "$IMAGE:$TAG"
-          docker rm -f react-demo-prod || true
-          docker run -d --name react-demo-prod -p 80:80 "$IMAGE:$TAG"
+
+          # 1) 停掉同名旧容器（首次部署不存在会报错，忽略即可）
+          docker rm -f react-demo-prod >/dev/null 2>&1 || true
+
+          # 2) 兜底：停掉任何占用主机 80 端口的「其它」容器，
+          #    防止上一次失败遗留的孤儿容器 / 手工起的容器抢占端口
+          for c in $(docker ps -q --filter "publish=80"); do
+            echo "::warning::发现占用 80 端口的容器 $c，正在停掉以释放端口"
+            docker rm -f "$c" >/dev/null 2>&1 || true
+          done
+
+          # 3) 启动；若 80 端口仍被宿主机进程（nginx/apache 等）占用则给出明确提示
+          #    --add-host 让容器内的 host.docker.internal 解析到宿主机网关
+          #    （Linux runner 默认不解析该域名，会导致 nginx 因 upstream 解析失败而崩溃）
+          if ! docker run -d --name react-demo-prod \
+                -p 80:80 \
+                # --add-host=host.docker.internal:host-gateway \     兼容proxy_pass http://common-server:3001; Docker Desktop写法
+                "$IMAGE:$TAG"; then
+            echo "::error::docker run 失败：主机 80 端口仍被占用。请在 self-hosted runner 上执行 'docker ps --filter publish=80' 与 'sudo ss -tlnp | grep :80' 找出占用者并释放后重试。"
+            exit 125
+          fi
 
       - name: 健康检查 / 自动回滚
         run: |
-          sleep 5
-          if curl -sf http://localhost > /dev/null; then
-            echo "✅ 部署成功（镜像来自 GHCR: $TAG）"
+          # 用 127.0.0.1 规避 localhost→::1 的 IPv6 歧义；多试几次容忍 nginx 冷启动
+          ok=0
+          for i in $(seq 1 10); do
+            if curl -fsS http://127.0.0.1/ >/dev/null 2>&1; then
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ok" -eq 1 ]; then
+            echo "✅ 部署成功（镜像来自 GHCR）"
           else
-            echo "❌ 健康检查失败，回滚"
-            docker rm -f react-demo-prod
+            echo "❌ 健康检查失败，输出诊断信息后回滚："
+            docker ps -a --filter "name=react-demo-prod" || true
+            docker logs --tail 50 react-demo-prod || true
+            docker rm -f react-demo-prod || true
             exit 1
           fi
