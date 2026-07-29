@@ -63,21 +63,28 @@ jobs:
 
       - name: 健康检查 / 自动回滚
         run: |
-          # 用 127.0.0.1 规避 localhost→::1 的 IPv6 歧义；多试几次容忍 nginx 冷启动
           ok=0
+          code=""
+          # 注意：self-hosted runner 若设了 http_proxy，curl 会把 127.0.0.1 也走代理而失败，
+          # 因此显式 --noproxy 绕过代理；同时打印真实 HTTP 状态便于排查。
           for i in $(seq 1 10); do
-            if curl -fsS http://127.0.0.1/ >/dev/null 2>&1; then
+            code=$(curl -s --noproxy 127.0.0.1,localhost -o /dev/null -w '%{http_code}' http://127.0.0.1/ 2>/dev/null)
+            if [ "${code:-000}" = "200" ]; then
               ok=1
               break
             fi
             sleep 2
           done
           if [ "$ok" -eq 1 ]; then
-            echo "✅ 部署成功（镜像来自 GHCR）"
+            echo "✅ 部署成功（镜像来自 GHCR，HTTP $code）"
           else
-            echo "❌ 健康检查失败，输出诊断信息后回滚："
+            echo "❌ 健康检查失败（HTTP 状态: '${code:-无响应}'），诊断："
             docker ps -a --filter "name=react-demo-prod" || true
-            docker logs --tail 50 react-demo-prod || true
+            docker logs --tail 30 react-demo-prod || true
+            echo "--- 容器内静态资源 ---"
+            docker exec react-demo-prod ls -la /usr/share/nginx/html 2>&1 || true
+            echo "--- curl -i（带 --noproxy）---"
+            curl -i --noproxy 127.0.0.1,localhost http://127.0.0.1/ 2>&1 | head -25 || true
             docker rm -f react-demo-prod || true
             exit 1
           fi
