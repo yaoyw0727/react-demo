@@ -1,31 +1,52 @@
-name: deploy
+# ============================================================
+# 方式 A（解耦）—— 第 2 段：CD 从 GHCR 拉取镜像并运行
+# ------------------------------------------------------------
+# 职责：只负责「拉取 + 部署」，绝不重新 build。
+# 触发：等 A1-Build-Push 完成后再跑（workflow_run），保证构建先结束。
+#       也支持在 Actions 页面手动触发（workflow_dispatch），此时回退拉取 :latest。
+# 拉取的标签：本次构建的 commit sha —— 与 build 完全一致，可复现、可回滚。
+# 关键对比点（vs 方式 B）：
+#   这里完全不碰源代码、不跑 npm / docker build，镜像来自仓库，
+#   因此 deploy 可以放在任意机器 / 任意 runner 上执行。
+# ============================================================
+name: A2-Deploy-Pull (GHCR)
 
 on:
-  push:
-    branches: [ main ]        # ← 代码提交即自动触发
+  workflow_run:
+    workflows: ["A1-Build-Push (GHCR)"]
+    types: [completed]
+  # 想手动试跑时，在 Actions 页面手动触发（此时下面 TAG 回退为 :latest）
+  workflow_dispatch:
+
+# 拉取 GHCR 需要 packages 读权限
+permissions:
+  contents: read
+  packages: read
 
 jobs:
-  build-and-deploy:
-    runs-on: self-hosted      # ← 跑在自托管 Runner 上
+  deploy:
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4   # 替代被注释掉的 git pull
+      - name: 登录 GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: 构建前端
+      - name: 拉取镜像并运行（不重新 build）
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}/react-demo-frontend
+          SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          # cd frontend
-          npm ci
-          npm run build
-
-      - name: 构建并启动容器
-        run: docker compose up -d --build
+          TAG="${SHA:-latest}"   # workflow_run 时用 sha；手动触发回退 latest
+          docker pull "$IMAGE:$TAG"
+          docker rm -f react-demo-prod || true
+          docker run -d --name react-demo-prod -p 80:80 "$IMAGE:$TAG"
 
       - name: 健康检查 / 自动回滚
         run: |
           sleep 5
-          if curl -sf -k https://localhost > /dev/null; then
-            echo "✅ 部署成功"
+          if curl -sf http://localhost > /dev/null; then
+            echo "✅ 部署成功（镜像来自 GHCR: $TAG）"
           else
             echo "❌ 健康检查失败，回滚"
-            docker-compose down
+            docker rm -f react-demo-prod
             exit 1
           fi

@@ -1,26 +1,39 @@
-name: CI - Local
+# ============================================================
+# 方式 A（解耦）—— 第 1 段：CI 构建并推送镜像到 GHCR
+# ------------------------------------------------------------
+# 职责：只负责「构建 + 推送」，绝不部署。
+# 触发：push 到 main
+# 产物：ghcr.io/<owner>/<repo>/react-demo-frontend:<sha>  与  :latest
+#       部署由 deploy.yml 通过 workflow_run 接管（两段解耦）。
+# 关键对比点（vs 方式 B）：
+#   镜像的「交接」发生在镜像仓库（GHCR），而不是本地 docker daemon，
+#   所以 build 和 deploy 可以跑在不同的 runner / 不同的机器上。
+# ============================================================
+name: A1-Build-Push (GHCR)
 
 on:
   push:
-    branches: [main]      # 推到 main 才触发；本地先试可改你的分支名
+    branches: [main]
+
+# 推送 GHCR 需要 packages 写权限；用默认 GITHUB_TOKEN 即可，无需自建 secret
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  build-and-run:
-    runs-on: self-hosted  # 关键：派给你的 WSL runner，不是 GitHub 云机器
+  build-and-push:
+    runs-on: self-hosted
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Build image
-        run: docker build -t react-demo-frontend .
+      - name: 登录 GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Run container
+      - name: 构建并推送镜像
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}/react-demo-frontend
         run: |
-          docker rm -f react-demo || true          # 清掉上次残留，避免端口占用
-          docker run -d --name react-demo -p 8080:80 react-demo-frontend
-
-      - name: Verify it is up   # 给个明确成功信号
-        run: |
-          sleep 3
-          docker ps --filter name=react-demo
-          curl -s http://localhost:8080 | head -c 200
+          # 用不可变的 commit sha 打标签：可追溯、可精确回滚
+          docker build -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
