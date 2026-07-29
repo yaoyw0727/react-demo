@@ -49,11 +49,10 @@ jobs:
           done
 
           # 3) 启动；若 80 端口仍被宿主机进程（nginx/apache 等）占用则给出明确提示
-          #    --add-host 让容器内的 host.docker.internal 解析到宿主机网关
+          #    --add-host 让容器内的 host.docker.internal 解析到宿主机网关兼容proxy_pass http://common-server:3001; Docker Desktop写法
           #    （Linux runner 默认不解析该域名，会导致 nginx 因 upstream 解析失败而崩溃）
           if ! docker run -d --name react-demo-prod \
                 -p 80:80 \
-                # --add-host=host.docker.internal:host-gateway \     兼容proxy_pass http://common-server:3001; Docker Desktop写法
                 "$IMAGE:$TAG"; then
             echo "::error::docker run 失败：主机 80 端口仍被占用。请在 self-hosted runner 上执行 'docker ps --filter publish=80' 与 'sudo ss -tlnp | grep :80' 找出占用者并释放后重试。"
             exit 125
