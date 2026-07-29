@@ -1,0 +1,31 @@
+name: deploy
+
+on:
+  push:
+    branches: [ main ]        # ← 代码提交即自动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted      # ← 跑在自托管 Runner 上（本机已装 Docker）
+    steps:
+      - uses: actions/checkout@v4   # 替代被注释掉的 git pull
+
+      - name: 构建前端
+        run: |
+          # cd frontend
+          npm ci
+          npm run build
+
+      - name: 构建并启动容器
+        run: docker compose up -d --build
+
+      - name: 健康检查 / 自动回滚
+        run: |
+          sleep 5
+          if curl -sf -k https://localhost > /dev/null; then
+            echo "✅ 部署成功"
+          else
+            echo "❌ 健康检查失败，回滚"
+            docker-compose down
+            exit 1
+          fi
