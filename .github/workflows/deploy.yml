@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted      # ← 跑在自托管 Runner 上（本机已装 Docker）
+    runs-on: self-hosted      # ← 跑在自托管 Runner 上
     steps:
       - uses: actions/checkout@v4   # 替代被注释掉的 git pull
 
